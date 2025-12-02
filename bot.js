@@ -521,7 +521,7 @@ bot.catch((err, ctx) => {
    });
 const DOMAIN = 'https://advent-bot-v1th.onrender.com'; // your Render URL, e.g., https://my-bot.onrender.com
 
-bot.telegram.setWebhook(`${WEBHOOK_URL}/bot${BOT_TOKEN}`);
+bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`);
 app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 
    app.listen(PORT, () => {
@@ -537,6 +537,7 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
