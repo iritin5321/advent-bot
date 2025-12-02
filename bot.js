@@ -611,7 +611,7 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 const cron = require('node-cron');
 
 // Daily reminder at 10:00 server time
-cron.schedule('0 10 * * *', async () => {
+cron.schedule('0 17 * * *', async () => {
     console.log("Sending daily reminders...");
 
     const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
@@ -642,6 +642,7 @@ cron.schedule('0 10 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
