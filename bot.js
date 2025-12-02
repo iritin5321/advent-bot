@@ -5,6 +5,16 @@ const express = require('express');
 const BOT_TOKEN = process.env.BOT_TOKEN || '8389541552:AAFrzMsztke1dK68PJREs7OIpQFtRLTsXCw';
 const bot = new Telegraf(BOT_TOKEN);
 
+// List of teacher/admin Telegram user IDs (can view all responses)
+const TEACHER_IDS = [
+    1763838753,  // Replace with your actual Telegram user ID
+    // Add more teacher IDs here
+];
+
+function isTeacher(userId) {
+    return TEACHER_IDS.includes(userId);
+}
+
 // Advent calendar content for each day (December 1-24)
 const ADVENT_CONTENT = {
     1: { 
@@ -175,9 +185,36 @@ const userData = {};
 
 function loadUserData(userId) {
     if (!userData[userId]) {
-        userData[userId] = { openedDays: [] };
+        userData[userId] = { 
+            openedDays: [],
+            answers: {}  // Store answers by day number
+        };
     }
     return userData[userId];
+}
+
+function saveAnswer(userId, day, answer, userName) {
+    const data = loadUserData(userId);
+    data.answers[day] = {
+        answer: answer,
+        timestamp: new Date().toISOString(),
+        userName: userName
+    };
+}
+
+function getAllAnswers(day) {
+    const allAnswers = [];
+    for (const [userId, data] of Object.entries(userData)) {
+        if (data.answers && data.answers[day]) {
+            allAnswers.push({
+                userId: userId,
+                userName: data.answers[day].userName,
+                answer: data.answers[day].answer,
+                timestamp: data.answers[day].timestamp
+            });
+        }
+    }
+    return allAnswers;
 }
 
 function saveOpenedDay(userId, day) {
@@ -224,7 +261,19 @@ function createCalendarKeyboard(userId) {
     
     return Markup.inlineKeyboard(keyboard);
 }
+const userStates = {};
 
+function setUserState(userId, state, data = {}) {
+    userStates[userId] = { state, ...data };
+}
+
+function getUserState(userId) {
+    return userStates[userId] || { state: 'idle' };
+}
+
+function clearUserState(userId) {
+    delete userStates[userId];
+}
 // Start command
 bot.command('start', (ctx) => {
     const welcomeMessage = 
@@ -268,7 +317,37 @@ bot.command('progress', (ctx) => {
     
     return ctx.reply(progressText);
 });
+// Teacher command to view all answers
+bot.command('answers', (ctx) => {
+    const userId = ctx.from.id;
 
+    // Check if user is a teacher
+    if (!isTeacher(userId)) {
+        return ctx.reply('❌ Sorry, only teachers can view answers.');
+    }
+
+    // Ask which day to view
+    const keyboard = [];
+    let row = [];
+    
+    for (let day = 1; day <= 24; day++) {
+        row.push(Markup.button.callback(`Day ${day}`, `view_answers_${day}`));
+        
+        if (row.length === 6) {
+            keyboard.push(row);
+            row = [];
+        }
+    }
+    
+    if (row.length > 0) {
+        keyboard.push(row);
+    }
+
+    return ctx.reply(
+        '👨‍🏫 Teacher Panel: Select a day to view student answers',
+        Markup.inlineKeyboard(keyboard)
+    );
+});
 // Handle button clicks
 bot.action(/.*/, async (ctx) => {
     const userId = ctx.from.id;
@@ -280,7 +359,15 @@ bot.action(/.*/, async (ctx) => {
 
     const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null, question: null };
 
-    const caption = `${content.message}\n\n❓ ${content.question}`;
+    let caption = `${content.message}\n\nYou've opened day ${day}! 🎉`;
+    
+    if (content.question) {
+        caption += `\n\n❓ ${content.question}\n\n💬 Type your answer below:`;
+        // Set user state to expect an answer for this day
+        setUserState(userId, 'waiting_answer', { day: day });
+    } else {
+        caption += '\n\nUse /calendar to see the full calendar.';
+    }
 
     const keyboard = Markup.inlineKeyboard([
         [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
@@ -339,9 +426,86 @@ bot.action(/.*/, async (ctx) => {
 return ctx.reply(message, createCalendarKeyboard(userId));
 
     }
+    if (callbackData.startsWith('view_answers_')) {
+        const day = parseInt(callbackData.split('_')[2]);
+        const userId = ctx.from.id;
+
+        // Double-check teacher status
+        if (!isTeacher(userId)) {
+            return ctx.answerCbQuery('❌ Unauthorized', { show_alert: true });
+        }
+
+        const answers = getAllAnswers(day);
+
+        if (answers.length === 0) {
+            return ctx.answerCbQuery(`No answers yet for Day ${day}`, { show_alert: true });
+        }
+
+        let message = `📊 Student Answers for Day ${day}\n`;
+        message += `Question: ${ADVENT_CONTENT[day]?.question || 'N/A'}\n\n`;
+        message += `Total responses: ${answers.length}\n\n`;
+        message += '─────────────────\n\n';
+
+        answers.forEach((item, index) => {
+            message += `${index + 1}. ${item.userName}\n`;
+            message += `💬 "${item.answer}"\n`;
+            message += `🕒 ${new Date(item.timestamp).toLocaleString()}\n\n`;
+        });
+
+        await ctx.deleteMessage().catch(() => {});
+        return ctx.reply(message, Markup.inlineKeyboard([
+            [Markup.button.callback('« Back to Days', 'back_to_teacher_panel')]
+        ]));
+    }
+
+    if (callbackData === 'back_to_teacher_panel') {
+        const keyboard = [];
+        let row = [];
+        
+        for (let day = 1; day <= 24; day++) {
+            row.push(Markup.button.callback(`Day ${day}`, `view_answers_${day}`));
+            
+            if (row.length === 6) {
+                keyboard.push(row);
+                row = [];
+            }
+        }
+        
+        if (row.length > 0) {
+            keyboard.push(row);
+        }
+
+        await ctx.deleteMessage().catch(() => {});
+        return ctx.reply(
+            '👨‍🏫 Teacher Panel: Select a day to view student answers',
+            Markup.inlineKeyboard(keyboard)
+        );
+    }
 });
 
+// Handle text messages (student answers)
+bot.on('text', (ctx) => {
+    const userId = ctx.from.id;
+    const userName = ctx.from.first_name + (ctx.from.last_name ? ' ' + ctx.from.last_name : '');
+    const userState = getUserState(userId);
 
+    // Check if user is answering a question
+    if (userState.state === 'waiting_answer') {
+        const day = userState.day;
+        const answer = ctx.message.text;
+
+        // Save the answer
+        saveAnswer(userId, day, answer, userName);
+        clearUserState(userId);
+
+        // Confirm to student
+        ctx.reply(
+            `✅ Thank you! Your answer has been saved.\n\n` +
+            `Your response: "${answer}"\n\n` +
+            `Use /calendar to continue exploring the advent calendar! 🎄`
+        );
+    }
+});
 // Error handling
 bot.catch((err, ctx) => {
     console.error('Error occurred:', err);
@@ -368,6 +532,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
