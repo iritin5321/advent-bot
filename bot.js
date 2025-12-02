@@ -13,7 +13,7 @@ const ADVENT_CONTENT = {
     },
     2: { 
         message: '❄️ Day 2: "Snowed under"\n\n',
-        image: 'https://ibb.co/S7vk0kM7' 
+        image: 'https://ibb.co/dJf6Xt8k' 
     },
     3: { 
         message: '🎅 Day 3: "In the dead of winter"\n\n' +
@@ -371,6 +371,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
