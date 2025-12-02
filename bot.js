@@ -511,6 +511,7 @@ bot.catch((err, ctx) => {
     console.error('Error occurred:', err);
 });
 
+
 // Create a simple web server for Render
    const app = express();
    const PORT = process.env.PORT || 3000;
@@ -518,20 +519,25 @@ bot.catch((err, ctx) => {
    app.get('/', (req, res) => {
        res.send('Advent Calendar Bot is running! 🎄');
    });
+const DOMAIN = 'https://advent-bot-v1th.onrender.com'; // your Render URL, e.g., https://my-bot.onrender.com
+
+bot.telegram.setWebhook(`${WEBHOOK_URL}/bot${BOT_TOKEN}`);
+app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 
    app.listen(PORT, () => {
        console.log(`Web server running on port ${PORT}`);
    });
 
    // Start the bot
-   bot.launch().then(() => {
-       console.log('Bot is running...');
-   });
+  // bot.launch().then(() => {
+  //     console.log('Bot is running...');
+ //  });//
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
