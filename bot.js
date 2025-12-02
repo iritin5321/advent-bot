@@ -341,7 +341,9 @@ bot.action(/.*/, async (ctx) => {
             '✓ = Already opened\n' +
             '🔒 = Coming soon';
 
-        return ctx.editMessageText(message, createCalendarKeyboard(userId));
+        await ctx.deleteMessage().catch(() => {});
+return ctx.reply(message, createCalendarKeyboard(userId));
+
     }
 });
 
@@ -372,6 +374,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
