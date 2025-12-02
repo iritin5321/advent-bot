@@ -9,7 +9,8 @@ const bot = new Telegraf(BOT_TOKEN);
 const ADVENT_CONTENT = {
     1: { 
         message: '🎄 Day 1: "Break the ice"\n\n',
-        image: 'https://ibb.co/hRTWbLpc' 
+        image: 'https://ibb.co/hRTWbLpc',
+        question: 'How do you prefer to break the ice when you first meet someone?'
     },
     2: { 
         message: '❄️ Day 2: "Snowed under"\n\n',
@@ -274,29 +275,28 @@ bot.action(/.*/, async (ctx) => {
     const callbackData = ctx.callbackQuery.data;
 
     if (callbackData.startsWith('open_')) {
-        const day = parseInt(callbackData.split('_')[1]);
-        saveOpenedDay(userId, day);
+    const day = parseInt(callbackData.split('_')[1]);
+    saveOpenedDay(userId, day);
 
-        const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null };
+    const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null, question: null };
 
-        const message =
-            `You've opened day ${day}! 🎉\n\n` +
-            'Use /calendar to see the full calendar.';
+    const caption = `${content.message}\n\n❓ ${content.question}`;
 
-        const keyboard = Markup.inlineKeyboard([
-            [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
-        ]);
+    const keyboard = Markup.inlineKeyboard([
+        [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
+    ]);
 
-        if (content.image) {
-            await ctx.deleteMessage().catch(() => {});
-            return ctx.replyWithPhoto(content.image, {
-                caption: message,
-                ...keyboard
-            });
-        } else {
-            return ctx.editMessageText(message, keyboard);
-        }
+    if (content.image) {
+        await ctx.deleteMessage().catch(() => {});
+        return ctx.replyWithPhoto(content.image, {
+            caption: caption,
+            ...keyboard
+        });
+    } else {
+        return ctx.editMessageText(caption, keyboard);
     }
+}
+
 
     if (callbackData.startsWith('opened_')) {
         const day = parseInt(callbackData.split('_')[1]);
@@ -368,6 +368,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
