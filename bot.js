@@ -17,19 +17,32 @@ const BOT_TOKEN = process.env.BOT_TOKEN || '8389541552:AAFrzMsztke1dK68PJREs7OIp
 const bot = new Telegraf(BOT_TOKEN);
 
 async function saveUserToSheet(userId, firstName) {
-    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE'; // same sheet
+    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
     const sheetName = 'Users';
 
-    // Append new row: [User ID, First Name, Last Active]
-    await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range: 'Users',
-        valueInputOption: 'RAW',
-        requestBody: {
-            values: [[userId, firstName, new Date().toLocaleString()]]
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: `${sheetName}!A:A`
+        });
+
+        const existingIds = (response.data.values || []).flat();
+
+        if (!existingIds.includes(userId.toString())) {
+            await sheets.spreadsheets.values.append({
+                spreadsheetId,
+                range: sheetName,
+                valueInputOption: 'RAW',
+                requestBody: {
+                    values: [[userId, firstName, new Date().toLocaleString()]]
+                }
+            });
         }
-    });
+    } catch (err) {
+        console.error('Error saving user:', err);
+    }
 }
+
 
 async function saveAnswerToSheet(day, userName, answer) {
   const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE'; // replace with your Google Sheet ID
@@ -555,6 +568,9 @@ bot.on('text', (ctx) => {
 saveAnswerToSheet(day, userName, answer)
     .catch(err => console.error('Error saving to Google Sheets:', err));
 
+      // ✅ Save user ID to Users tab (for notifications)
+    saveUserToSheet(userId, ctx.from.first_name)
+        .catch(err => console.error('Error saving user ID:', err));
         
         clearUserState(userId);
 
@@ -626,6 +642,7 @@ cron.schedule('0 10 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
