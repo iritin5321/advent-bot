@@ -578,11 +578,24 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
   // bot.launch().then(() => {
   //     console.log('Bot is running...');
  //  });//
+const cron = require('node-cron');
 
+// Daily reminder at 10:00 server time
+cron.schedule('0 10 * * *', () => {
+    console.log("Sending daily reminders...");
+
+    users.forEach(userId => {
+        bot.telegram.sendMessage(
+            userId,
+            "🎁 Don't forget to open today's Advent gift box!"
+        );
+    });
+});
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
