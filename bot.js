@@ -45,11 +45,13 @@ const ADVENT_CONTENT = {
     },
     2: { 
         message: '❄️ Day 2: "Snowed under"\n\n',
-        image: 'https://ibb.co/ym77zhmH' 
+        image: 'https://ibb.co/ym77zhmH',
+      question: 'Do you feel snowed under at the moment? Why?'
     },
     3: { 
         message: '🎅 Day 3: "In the dead of winter"\n\n',
-        image: 'https://ibb.co/qYqK4K9Z' 
+        image: 'https://ibb.co/qYqK4K9Z',
+      question: 'What do you like to do in the dead of winter?'
     },
     4: { 
         message: '⭐ Day 4: "The more the merrier"\n\n' +
@@ -564,6 +566,7 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
