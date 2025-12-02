@@ -620,13 +620,13 @@ cron.schedule('0 10 * * *', async () => {
     try {
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: `${sheetName}!A:C`
+            range: `${sheetName}!A:A`
         });
 
         const rows = response.data.values || [];
 
         // Skip header row
-        for (let i = 1; i < rows.length; i++) {
+        for (let i = 0; i < rows.length; i++) {
             const userId = rows[i][0];
             bot.telegram.sendMessage(
                 userId,
@@ -642,6 +642,7 @@ cron.schedule('0 10 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
