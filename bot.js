@@ -7,7 +7,7 @@ const bot = new Telegraf(BOT_TOKEN);
 
 // Advent calendar content for each day (December 1-24)
 const ADVENT_CONTENT = {
-        1: { 
+    1: { 
         message: '🎄 Day 1: "Break the ice"\n\n' +
                  '📖 Meaning: To start a conversation or make people feel comfortable in a social situation.\n\n' +
                  '💬 Example: "At the Christmas party, John told a funny joke to break the ice."\n\n' +
@@ -174,7 +174,8 @@ const ADVENT_CONTENT = {
                  '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
                  '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
                  '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
-};
+        image: null 
+    },
 };
 
 // Store user data (in production, use a database)
@@ -359,5 +360,6 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
