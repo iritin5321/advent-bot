@@ -7,30 +7,177 @@ const bot = new Telegraf(BOT_TOKEN);
 
 // Advent calendar content for each day (December 1-24)
 const ADVENT_CONTENT = {
-    1: { message: '🎄 Day 1: Welcome to the Advent Calendar!', image: null },
-    2: { message: '❄️ Day 2: Let it snow!', image: null },
-    3: { message: '🎅 Day 3: Santa is preparing his sleigh!', image: null },
-    4: { message: '⭐ Day 4: The first star shines bright!', image: null },
-    5: { message: '🕯️ Day 5: Light a candle and make a wish!', image: null },
-    6: { message: '🎁 Day 6: Time to wrap some presents!', image: null },
-    7: { message: '🔔 Day 7: Jingle bells, jingle bells!', image: null },
-    8: { message: '☃️ Day 8: Build a snowman today!', image: null },
-    9: { message: '🍪 Day 9: Baking cookies time!', image: null },
-    10: { message: '🎵 Day 10: Sing your favorite Christmas carol!', image: null },
-    11: { message: '🌟 Day 11: Eleven stars twinkling!', image: null },
-    12: { message: '🎿 Day 12: Winter sports season!', image: null },
-    13: { message: '🦌 Day 13: Rudolph\'s nose is glowing!', image: null },
-    14: { message: '🧦 Day 14: Hang your stockings!', image: null },
-    15: { message: '🎨 Day 15: Make some decorations!', image: null },
-    16: { message: '📬 Day 16: Write letters to Santa!', image: null },
-    17: { message: '🌲 Day 17: Decorate the Christmas tree!', image: null },
-    18: { message: '🎬 Day 18: Watch a Christmas movie!', image: null },
-    19: { message: '🍫 Day 19: Hot chocolate weather!', image: null },
-    20: { message: '🎪 Day 20: The elves are working hard!', image: null },
-    21: { message: '🌙 Day 21: The longest night of the year!', image: null },
-    22: { message: '🎺 Day 22: Christmas music fills the air!', image: null },
-    23: { message: '✨ Day 23: Magic is in the air!', image: null },
-    24: { message: '🎉 Day 24: Christmas Eve! Santa is coming tonight!', image: null },
+    const ADVENT_CONTENT = {
+    1: { 
+        message: '🎄 Day 1: "Break the ice"\n\n' +
+                 '📖 Meaning: To start a conversation or make people feel comfortable in a social situation.\n\n' +
+                 '💬 Example: "At the Christmas party, John told a funny joke to break the ice."\n\n' +
+                 '❄️ Winter connection: Just like breaking ice on a frozen pond!',
+        image: null 
+    },
+    2: { 
+        message: '❄️ Day 2: "Snowed under"\n\n' +
+                 '📖 Meaning: To have too much work to do.\n\n' +
+                 '💬 Example: "I\'m snowed under with Christmas shopping and wrapping presents!"\n\n' +
+                 '❄️ Winter connection: Imagine being buried under heavy snow - that\'s how busy you are!',
+        image: null 
+    },
+    3: { 
+        message: '🎅 Day 3: "In the dead of winter"\n\n' +
+                 '📖 Meaning: In the middle of winter, the coldest time.\n\n' +
+                 '💬 Example: "We went skiing in the dead of winter when the snow was perfect."\n\n' +
+                 '❄️ Winter connection: "Dead" refers to nature being dormant and still.',
+        image: null 
+    },
+    4: { 
+        message: '⭐ Day 4: "The more the merrier"\n\n' +
+                 '📖 Meaning: The more people join, the more fun it will be.\n\n' +
+                 '💬 Example: "Can I bring my sister to the Christmas dinner?" "Sure! The more the merrier!"\n\n' +
+                 '🎄 Christmas connection: Christmas is about gathering together!',
+        image: null 
+    },
+    5: { 
+        message: '🕯️ Day 5: "To give someone the cold shoulder"\n\n' +
+                 '📖 Meaning: To ignore someone or be unfriendly toward them.\n\n' +
+                 '💬 Example: "After our argument, she gave me the cold shoulder at the party."\n\n' +
+                 '❄️ Winter connection: "Cold" reflects the unfriendly behavior!',
+        image: null 
+    },
+    6: { 
+        message: '🎁 Day 6: "Wrap up"\n\n' +
+                 '📖 Meaning: To finish something or to dress warmly.\n\n' +
+                 '💬 Example: "Let\'s wrap up this meeting before lunch." OR "Wrap up warm, it\'s freezing outside!"\n\n' +
+                 '🎁 Christmas connection: Also means wrapping presents!',
+        image: null 
+    },
+    7: { 
+        message: '🔔 Day 7: "Ring in the new year"\n\n' +
+                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
+                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
+                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
+        image: null 
+    },
+    8: { 
+        message: '☃️ Day 8: "A snowball\'s chance in hell"\n\n' +
+                 '📖 Meaning: No chance at all, impossible.\n\n' +
+                 '💬 Example: "He has a snowball\'s chance in hell of finishing all that work by tomorrow."\n\n' +
+                 '❄️ Winter connection: A snowball would melt instantly in hell!',
+        image: null 
+    },
+    9: { 
+        message: '🍪 Day 9: "Bundle up"\n\n' +
+                 '📖 Meaning: To dress in warm clothes.\n\n' +
+                 '💬 Example: "It\'s -10°C outside! You need to bundle up before going out."\n\n' +
+                 '❄️ Winter connection: Essential winter advice!',
+        image: null 
+    },
+    10: { 
+        message: '🎵 Day 10: "Spread Christmas cheer"\n\n' +
+                 '📖 Meaning: To make others happy and joyful during the holiday season.\n\n' +
+                 '💬 Example: "We sang carols at the nursing home to spread Christmas cheer."\n\n' +
+                 '🎄 Christmas connection: From the movie "Elf" - a classic Christmas phrase!',
+        image: null 
+    },
+    11: { 
+        message: '🌟 Day 11: "Left out in the cold"\n\n' +
+                 '📖 Meaning: To be excluded or ignored.\n\n' +
+                 '💬 Example: "I felt left out in the cold when they didn\'t invite me to the party."\n\n' +
+                 '❄️ Winter connection: Like being left outside in freezing weather!',
+        image: null 
+    },
+    12: { 
+        message: '🎿 Day 12: "On thin ice"\n\n' +
+                 '📖 Meaning: In a risky or dangerous situation.\n\n' +
+                 '💬 Example: "You\'re on thin ice with the boss after being late three times this week."\n\n' +
+                 '❄️ Winter connection: Thin ice on a lake can break - dangerous!',
+        image: null 
+    },
+    13: { 
+        message: '🦌 Day 13: "A white Christmas"\n\n' +
+                 '📖 Meaning: Christmas Day when there is snow on the ground.\n\n' +
+                 '💬 Example: "I\'m dreaming of a white Christmas, just like the ones I used to know."\n\n' +
+                 '🎄 Christmas connection: From the famous Bing Crosby song!',
+        image: null 
+    },
+    14: { 
+        message: '🧦 Day 14: "Under the weather"\n\n' +
+                 '📖 Meaning: Feeling ill or sick.\n\n' +
+                 '💬 Example: "I can\'t come to the party tonight, I\'m feeling a bit under the weather."\n\n' +
+                 '❄️ Winter connection: Cold weather often brings colds and flu!',
+        image: null 
+    },
+    15: { 
+        message: '🎨 Day 15: "Deck the halls"\n\n' +
+                 '📖 Meaning: To decorate for Christmas.\n\n' +
+                 '💬 Example: "It\'s time to deck the halls with lights and tinsel!"\n\n' +
+                 '🎄 Christmas connection: From the famous carol "Deck the Halls"!',
+        image: null 
+    },
+    16: { 
+        message: '📬 Day 16: "Snug as a bug in a rug"\n\n' +
+                 '📖 Meaning: Very comfortable and cozy.\n\n' +
+                 '💬 Example: "I\'m sitting by the fire with hot chocolate - snug as a bug in a rug!"\n\n' +
+                 '❄️ Winter connection: Perfect for describing a cozy winter evening!',
+        image: null 
+    },
+    17: { 
+        message: '🌲 Day 17: "Tis the season"\n\n' +
+                 '📖 Meaning: It\'s the appropriate time of year (usually for Christmas activities).\n\n' +
+                 '💬 Example: "Let\'s go ice skating - \'tis the season!"\n\n' +
+                 '🎄 Christmas connection: From "Deck the Halls" - "\'Tis the season to be jolly"!',
+        image: null 
+    },
+    18: { 
+        message: '🎬 Day 18: "Freeze someone out"\n\n' +
+                 '📖 Meaning: To deliberately exclude someone from a group or activity.\n\n' +
+                 '💬 Example: "The team tried to freeze out the new member by not including them in discussions."\n\n' +
+                 '❄️ Winter connection: Like shutting someone out in the freezing cold!',
+        image: null 
+    },
+    19: { 
+        message: '🍫 Day 19: "Warm the cockles of your heart"\n\n' +
+                 '📖 Meaning: To make you feel happy and content.\n\n' +
+                 '💬 Example: "Seeing the children open their presents really warmed the cockles of my heart."\n\n' +
+                 '❄️ Winter connection: Perfect for describing that cozy, warm Christmas feeling!',
+        image: null 
+    },
+    20: { 
+        message: '🎪 Day 20: "Home for the holidays"\n\n' +
+                 '📖 Meaning: Returning to your family home to celebrate Christmas.\n\n' +
+                 '💬 Example: "I\'m flying home for the holidays to spend Christmas with my parents."\n\n' +
+                 '🎄 Christmas connection: A popular Christmas song and tradition!',
+        image: null 
+    },
+    21: { 
+        message: '🌙 Day 21: "In cold blood"\n\n' +
+                 '📖 Meaning: Done deliberately and without emotion (usually about violence).\n\n' +
+                 '💬 Example: "The detective said the crime was committed in cold blood."\n\n' +
+                 '❄️ Winter connection: "Cold" suggests lack of warmth or emotion.',
+        image: null 
+    },
+    22: { 
+        message: '🎺 Day 22: "Baby, it\'s cold outside"\n\n' +
+                 '📖 Meaning: A playful way to say it\'s very cold (and you should stay inside).\n\n' +
+                 '💬 Example: "Want to go for a walk?" "Baby, it\'s cold outside! Let\'s stay in!"\n\n' +
+                 '❄️ Winter connection: From a famous Christmas song!',
+        image: null 
+    },
+    23: { 
+        message: '✨ Day 23: "Peace on Earth"\n\n' +
+                 '📖 Meaning: A wish for harmony and goodwill among all people.\n\n' +
+                 '💬 Example: "The choir sang songs of peace on Earth and goodwill to all."\n\n' +
+                 '🎄 Christmas connection: A central message of Christmas!',
+        image: null 
+    },
+    24: { 
+        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
+                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
+                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
+                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
+        image: null 
+    },
+};
 };
 
 // Store user data (in production, use a database)
@@ -215,3 +362,4 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
