@@ -304,7 +304,7 @@ bot.action(/.*/, async (ctx) => {
         return ctx.editMessageText(message, keyboard);
     }
 }
-    }
+    })
     
     if (callbackData.startsWith('opened_')) {
     const day = parseInt(callbackData.split('_')[1]);
@@ -371,6 +371,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
