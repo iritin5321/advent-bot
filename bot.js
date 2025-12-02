@@ -1,4 +1,5 @@
 const { Telegraf, Markup } = require('telegraf');
+const express = require('express');
 
 // Bot configuration
 const BOT_TOKEN = process.env.BOT_TOKEN || '8389541552:AAFrzMsztke1dK68PJREs7OIpQFtRLTsXCw';
@@ -193,11 +194,24 @@ bot.catch((err, ctx) => {
     console.error('Error occurred:', err);
 });
 
-// Start the bot
-bot.launch().then(() => {
-    console.log('Bot is running...');
-});
+// Create a simple web server for Render
+   const app = express();
+   const PORT = process.env.PORT || 3000;
+
+   app.get('/', (req, res) => {
+       res.send('Advent Calendar Bot is running! 🎄');
+   });
+
+   app.listen(PORT, () => {
+       console.log(`Web server running on port ${PORT}`);
+   });
+
+   // Start the bot
+   bot.launch().then(() => {
+       console.log('Bot is running...');
+   });
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
+
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
