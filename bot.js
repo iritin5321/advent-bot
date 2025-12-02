@@ -16,6 +16,21 @@ const sheets = google.sheets({ version: 'v4', auth });
 const BOT_TOKEN = process.env.BOT_TOKEN || '8389541552:AAFrzMsztke1dK68PJREs7OIpQFtRLTsXCw';
 const bot = new Telegraf(BOT_TOKEN);
 
+async function saveUserToSheet(userId, firstName) {
+    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE'; // same sheet
+    const sheetName = 'Users';
+
+    // Append new row: [User ID, First Name, Last Active]
+    await sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range: 'Users',
+        valueInputOption: 'RAW',
+        requestBody: {
+            values: [[userId, firstName, new Date().toLocaleString()]]
+        }
+    });
+}
+
 async function saveAnswerToSheet(day, userName, answer) {
   const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE'; // replace with your Google Sheet ID
   await sheets.spreadsheets.values.append({
@@ -302,12 +317,11 @@ function clearUserState(userId) {
 // Start command
 bot.command('start', (ctx) => {
   const userId = ctx.from.id;
+   const firstName = ctx.from.first_name;
 
-    // Save user to users.json if not already saved
-    if (!users.includes(userId)) {
-        users.push(userId);
-        fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
-    } 
+
+    // Save to Google Sheets
+    saveUserToSheet(userId, firstName).catch(err => console.error(err));
   
   const welcomeMessage = 
         `🎄 Welcome to the Advent Calendar, ${ctx.from.first_name}! 🎄\n\n` +
@@ -581,20 +595,38 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 const cron = require('node-cron');
 
 // Daily reminder at 10:00 server time
-cron.schedule('0 10 * * *', () => {
+cron.schedule('0 10 * * *', async () => {
     console.log("Sending daily reminders...");
 
-    users.forEach(userId => {
-        bot.telegram.sendMessage(
-            userId,
-            "🎁 Don't forget to open today's Advent gift box!"
-        );
-    });
+    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
+    const sheetName = 'Users';
+
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: `${sheetName}!A:C`
+        });
+
+        const rows = response.data.values || [];
+
+        // Skip header row
+        for (let i = 1; i < rows.length; i++) {
+            const userId = rows[i][0];
+            bot.telegram.sendMessage(
+                userId,
+                "🎁 Don't forget to open today's Advent gift box!"
+            );
+        }
+
+    } catch (err) {
+        console.error('Error fetching users for reminders:', err);
+    }
 });
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
