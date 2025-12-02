@@ -637,11 +637,13 @@ cron.schedule('0 17 * * *', async () => {
     } catch (err) {
         console.error('Error fetching users for reminders:', err);
     }
-});
+},
+             { timezone: 'Europe/Belgrade' });
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
