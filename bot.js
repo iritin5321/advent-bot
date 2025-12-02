@@ -275,7 +275,7 @@ bot.command('progress', (ctx) => {
 });
 
 // Handle button clicks
-bot.action(/.*/, (ctx) => {
+bot.action(/.*/, async (ctx) => {
     const userId = ctx.from.id;
     const callbackData = ctx.callbackQuery.data;
     
@@ -371,6 +371,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
