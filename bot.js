@@ -409,27 +409,34 @@ bot.action(/.*/, async (ctx) => {
 
 
     if (callbackData.startsWith('opened_')) {
-        const day = parseInt(callbackData.split('_')[1]);
-        const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null };
+    const day = parseInt(callbackData.split('_')[1]);
+    const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null, question: null };
 
-        const message =
-            `You already opened day ${day}! ✓\n\n` +
-            'Use /calendar to see the full calendar.';
+    let caption = `${content.message}\n\nYou already opened day ${day}! ✓`;
 
-        const keyboard = Markup.inlineKeyboard([
-            [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
-        ]);
-
-        if (content.image) {
-            await ctx.deleteMessage().catch(() => {});
-            return ctx.replyWithPhoto(content.image, {
-                caption: message,
-                ...keyboard
-            });
-        } else {
-            return ctx.editMessageText(message, keyboard);
-        }
+    if (content.question) {
+        caption += `\n\n❓ ${content.question}\n\n💬 Type your answer below:`;
+        // Set user state to expect an answer for this day
+        setUserState(userId, 'waiting_answer', { day: day });
+    } else {
+        caption += '\n\nUse /calendar to see the full calendar.';
     }
+
+    const keyboard = Markup.inlineKeyboard([
+        [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
+    ]);
+
+    if (content.image) {
+        await ctx.deleteMessage().catch(() => {});
+        return ctx.replyWithPhoto(content.image, {
+            caption: caption,
+            ...keyboard
+        });
+    } else {
+        return ctx.editMessageText(caption, keyboard);
+    }
+}
+
 
     if (callbackData.startsWith('locked_')) {
         const day = parseInt(callbackData.split('_')[1]);
@@ -566,6 +573,7 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
