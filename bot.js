@@ -3,6 +3,8 @@ const express = require('express');
 const { google } = require('googleapis');
 const fs = require('fs');
 const credentials = JSON.parse(process.env.SERVICE_ACCOUNT_JSON);
+const users = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+
 
 const auth = new google.auth.GoogleAuth({
   credentials,
@@ -299,7 +301,15 @@ function clearUserState(userId) {
 }
 // Start command
 bot.command('start', (ctx) => {
-    const welcomeMessage = 
+  const userId = ctx.from.id;
+
+    // Save user to users.json if not already saved
+    if (!users.includes(userId)) {
+        users.push(userId);
+        fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+    } 
+  
+  const welcomeMessage = 
         `🎄 Welcome to the Advent Calendar, ${ctx.from.first_name}! 🎄\n\n` +
         'Open a new door each day from December 1st to 24th!\n' +
         'Each day reveals a special surprise! 🎁\n\n' +
@@ -573,6 +583,7 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
