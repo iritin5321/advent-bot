@@ -9,18 +9,15 @@ const bot = new Telegraf(BOT_TOKEN);
 const ADVENT_CONTENT = {
     1: { 
         message: '🎄 Day 1: "Break the ice"\n\n',
-        image: 'https://ibb.co/XZ7Cq62R' 
+        image: 'https://ibb.co/hRTWbLpc' 
     },
     2: { 
         message: '❄️ Day 2: "Snowed under"\n\n',
-        image: 'https://ibb.co/dJf6Xt8k' 
+        image: 'https://ibb.co/ym77zhmH' 
     },
     3: { 
-        message: '🎅 Day 3: "In the dead of winter"\n\n' +
-                 '📖 Meaning: In the middle of winter, the coldest time.\n\n' +
-                 '💬 Example: "We went skiing in the dead of winter when the snow was perfect."\n\n' +
-                 '❄️ Winter connection: "Dead" refers to nature being dormant and still.',
-        image: null 
+        message: '🎅 Day 3: "In the dead of winter"\n\n',
+        image: 'https://ibb.co/qYqK4K9Z' 
     },
     4: { 
         message: '⭐ Day 4: "The more the merrier"\n\n' +
@@ -371,6 +368,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
