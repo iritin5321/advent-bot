@@ -8,7 +8,7 @@ const bot = new Telegraf(BOT_TOKEN);
 // Advent calendar content for each day (December 1-24)
 const ADVENT_CONTENT = {
     1: { 
-        message: '🎄 Day 1: "Break the ice"\n\n' +,
+        message: '🎄 Day 1: "Break the ice"\n\n' +
         image: 'https://ibb.co/XZ7Cq62R' 
     },
     2: { 
@@ -371,6 +371,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
