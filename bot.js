@@ -12,11 +12,8 @@ const ADVENT_CONTENT = {
         image: 'https://ibb.co/XZ7Cq62R' 
     },
     2: { 
-        message: '❄️ Day 2: "Snowed under"\n\n' +
-                 '📖 Meaning: To have too much work to do.\n\n' +
-                 '💬 Example: "I\'m snowed under with Christmas shopping and wrapping presents!"\n\n' +
-                 '❄️ Winter connection: Imagine being buried under heavy snow - that\'s how busy you are!',
-        image: null 
+        message: '❄️ Day 2: "Snowed under"\n\n',
+        image: 'https://ibb.co/S7vk0kM7' 
     },
     3: { 
         message: '🎅 Day 3: "In the dead of winter"\n\n' +
@@ -374,6 +371,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
