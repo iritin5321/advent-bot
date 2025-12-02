@@ -18,7 +18,7 @@ async function saveAnswerToSheet(day, userName, answer) {
   const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE'; // replace with your Google Sheet ID
   await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: 'Sheet1!A:D', // Columns: Date, Day, Student, Answer
+    range: 'Sheet1', // Columns: Date, Day, Student, Answer
     valueInputOption: 'RAW',
     requestBody: {
       values: [[new Date().toLocaleString(), day, userName, answer]]
@@ -564,6 +564,7 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
