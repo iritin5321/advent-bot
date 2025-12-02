@@ -278,72 +278,73 @@ bot.command('progress', (ctx) => {
 bot.action(/.*/, async (ctx) => {
     const userId = ctx.from.id;
     const callbackData = ctx.callbackQuery.data;
-    
+
     if (callbackData.startsWith('open_')) {
-    const day = parseInt(callbackData.split('_')[1]);
-    saveOpenedDay(userId, day);
-    
-    const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null };
-    
-    const message = 
-        `You've opened day ${day}! 🎉\n\n` +
-        'Use /calendar to see the full calendar.';
-    
-    const keyboard = Markup.inlineKeyboard([[
-        Markup.button.callback('« Back to Calendar', 'back_to_calendar')
-    ]]);
-    
-    // If there's an image, send it
-    if (content.image) {
-        await ctx.deleteMessage();
-        return ctx.replyWithPhoto(content.image, {
-            caption: message,
-            ...keyboard
-        });
-    } else {
-        return ctx.editMessageText(message, keyboard);
+        const day = parseInt(callbackData.split('_')[1]);
+        saveOpenedDay(userId, day);
+
+        const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null };
+
+        const message =
+            `You've opened day ${day}! 🎉\n\n` +
+            'Use /calendar to see the full calendar.';
+
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
+        ]);
+
+        if (content.image) {
+            await ctx.deleteMessage().catch(() => {});
+            return ctx.replyWithPhoto(content.image, {
+                caption: message,
+                ...keyboard
+            });
+        } else {
+            return ctx.editMessageText(message, keyboard);
+        }
     }
-}
-    })
-    
+
     if (callbackData.startsWith('opened_')) {
-    const day = parseInt(callbackData.split('_')[1]);
-    const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null };
-    
-    const message = 
-        `You already opened day ${day}! ✓\n\n` +
-        'Use /calendar to see the full calendar.';
-    
-    const keyboard = Markup.inlineKeyboard([[
-        Markup.button.callback('« Back to Calendar', 'back_to_calendar')
-    ]]);
-    
-    if (content.image) {
-        await ctx.deleteMessage();
-        return ctx.replyWithPhoto(content.image, {
-            caption: message,
-            ...keyboard
-        });
-    } else {
-        return ctx.editMessageText(message, keyboard);
+        const day = parseInt(callbackData.split('_')[1]);
+        const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null };
+
+        const message =
+            `You already opened day ${day}! ✓\n\n` +
+            'Use /calendar to see the full calendar.';
+
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
+        ]);
+
+        if (content.image) {
+            await ctx.deleteMessage().catch(() => {});
+            return ctx.replyWithPhoto(content.image, {
+                caption: message,
+                ...keyboard
+            });
+        } else {
+            return ctx.editMessageText(message, keyboard);
+        }
     }
-}
-    
+
     if (callbackData.startsWith('locked_')) {
         const day = parseInt(callbackData.split('_')[1]);
-        return ctx.answerCbQuery(`Day ${day} is still locked! Come back on December ${day}! 🔒`, { show_alert: true });
+        return ctx.answerCbQuery(`Day ${day} is still locked! Come back on December ${day}! 🔒`, {
+            show_alert: true
+        });
     }
-    
+
     if (callbackData === 'back_to_calendar') {
-        const message = 
+        const message =
             '🎄 Your Advent Calendar 🎄\n\n' +
             '🎁 = Available to open\n' +
             '✓ = Already opened\n' +
             '🔒 = Coming soon';
-        
+
         return ctx.editMessageText(message, createCalendarKeyboard(userId));
     }
 });
+
 
 // Error handling
 bot.catch((err, ctx) => {
@@ -371,6 +372,7 @@ bot.catch((err, ctx) => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
