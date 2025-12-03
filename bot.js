@@ -84,7 +84,7 @@ const ADVENT_CONTENT = {
       question: 'What do you like to do in the dead of winter?'
     },
     4: { 
-        message: '⭐ Day 4: "The more the merrier"\n\n', +
+        message: '⭐ Day 4: "The more the merrier"\n\n',
                   image: 'https://ibb.co/rKmdzLcs',
       question: 'Do you agree with this phrase? Why?'
     },
@@ -641,6 +641,7 @@ cron.schedule('0 11 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
