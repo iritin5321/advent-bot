@@ -597,21 +597,21 @@ bot.catch((err, ctx) => {
    });
 const DOMAIN = 'https://advent-bot-v1th.onrender.com'; // your Render URL, e.g., https://my-bot.onrender.com
 
-bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`);
-app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
+// bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`);
+// app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 
    app.listen(PORT, () => {
        console.log(`Web server running on port ${PORT}`);
    });
 
    // Start the bot
-  // bot.launch().then(() => {
-  //     console.log('Bot is running...');
- //  });//
+  bot.launch().then(() => {
+  console.log('Bot is running...');
+ });
 const cron = require('node-cron');
 
 // Daily reminder at 10:00 server time
-cron.schedule('0 10 * * *', async () => {
+cron.schedule('0 11 * * *', async () => {
     console.log("Sending daily reminders...");
 
     const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
@@ -643,6 +643,7 @@ cron.schedule('0 10 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
