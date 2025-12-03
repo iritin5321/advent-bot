@@ -3,8 +3,6 @@ const express = require('express');
 const { google } = require('googleapis');
 const fs = require('fs');
 const credentials = JSON.parse(process.env.SERVICE_ACCOUNT_JSON);
-const users = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-
 
 const auth = new google.auth.GoogleAuth({
   credentials,
@@ -641,6 +639,7 @@ cron.schedule('0 11 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
