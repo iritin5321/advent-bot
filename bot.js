@@ -350,7 +350,10 @@ if (lastCalendarMessage[userId]) {
 
 
 const sentMessage = await ctx.reply(welcomeMessage, createCalendarKeyboard(userId));
-lastCalendarMessage[userId] = sentMessage.message_id;
+lastCalendarMessage[userId] = {
+    ...(lastCalendarMessage[userId] || {}),
+    calendar: sentMessage.message_id
+};
 
 });
 
@@ -479,15 +482,39 @@ bot.action(/.*/, async (ctx) => {
         [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
     ]);
 
-    if (content.image) {
-        await ctx.deleteMessage().catch(() => {});
-        return ctx.replyWithPhoto(content.image, {
-            caption: caption,
-            ...keyboard
-        });
-    } else {
-        return ctx.editMessageText(caption, keyboard);
+   if (content.image) {
+    // Delete previous calendar or image
+    if (lastCalendarMessage[userId]) {
+        if (lastCalendarMessage[userId].calendar) {
+            await ctx.deleteMessage(lastCalendarMessage[userId].calendar).catch(() => {});
+        }
+        if (lastCalendarMessage[userId].image) {
+            await ctx.deleteMessage(lastCalendarMessage[userId].image).catch(() => {});
+        }
     }
+
+    const sentMessage = await ctx.replyWithPhoto(content.image, {
+        caption: caption,
+        ...keyboard
+    });
+
+    // Save new image message ID
+    lastCalendarMessage[userId] = {
+        ...(lastCalendarMessage[userId] || {}),
+        image: sentMessage.message_id
+    };
+
+    return;
+} else {
+    // Delete old image if it exists
+    if (lastCalendarMessage[userId]?.image) {
+        await ctx.deleteMessage(lastCalendarMessage[userId].image).catch(() => {});
+        lastCalendarMessage[userId].image = null;
+    }
+
+    return ctx.editMessageText(caption, keyboard);
+}
+
 }
 
 
@@ -705,6 +732,7 @@ lastCalendarMessage[userId] = sentMessage.message_id;
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
