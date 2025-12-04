@@ -350,10 +350,8 @@ if (lastCalendarMessage[userId]) {
 
 
 const sentMessage = await ctx.reply(welcomeMessage, createCalendarKeyboard(userId));
-lastCalendarMessage[userId] = {
-    ...(lastCalendarMessage[userId] || {}),
-    calendar: sentMessage.message_id
-};
+lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
+
 
 });
 
@@ -373,7 +371,8 @@ if (lastCalendarMessage[userId]) {
 }
 
 const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
-lastCalendarMessage[userId] = sentMessage.message_id;
+lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
+
 
 });
 
@@ -462,18 +461,18 @@ bot.action(/.*/, async (ctx) => {
     const userId = ctx.from.id;
     const callbackData = ctx.callbackQuery.data;
 
-    if (callbackData.startsWith('open_')) {
+   if (callbackData.startsWith('open_') || callbackData.startsWith('opened_')) {
     const day = parseInt(callbackData.split('_')[1]);
     saveOpenedDay(userId, day);
 
     const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null, question: null };
 
-    let caption = `${content.message}\n\nYou've opened day ${day}! 🎉`;
-    
+    let caption = `${content.message}\n\n`;
+    caption += callbackData.startsWith('open_') ? `You've opened day ${day}! 🎉` : `You already opened day ${day}! ✓`;
+
     if (content.question) {
         caption += `\n\n❓ ${content.question}\n\n💬 Type your answer below:`;
-        // Set user state to expect an answer for this day
-        setUserState(userId, 'waiting_answer', { day: day });
+        setUserState(userId, 'waiting_answer', { day });
     } else {
         caption += '\n\nUse /calendar to see the full calendar.';
     }
@@ -482,8 +481,7 @@ bot.action(/.*/, async (ctx) => {
         [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
     ]);
 
-   if (content.image) {
-    // Delete previous calendar or image
+    // Delete previous messages if exist
     if (lastCalendarMessage[userId]) {
         if (lastCalendarMessage[userId].calendar) {
             await ctx.deleteMessage(lastCalendarMessage[userId].calendar).catch(() => {});
@@ -493,60 +491,16 @@ bot.action(/.*/, async (ctx) => {
         }
     }
 
-    const sentMessage = await ctx.replyWithPhoto(content.image, {
-        caption: caption,
-        ...keyboard
-    });
-
-    // Save new image message ID
-    lastCalendarMessage[userId] = {
-        ...(lastCalendarMessage[userId] || {}),
-        image: sentMessage.message_id
-    };
+    if (content.image) {
+        const sentMessage = await ctx.replyWithPhoto(content.image, { caption, ...keyboard });
+        lastCalendarMessage[userId] = { calendar: null, image: sentMessage.message_id };
+    } else {
+        const sentMessage = await ctx.reply(caption, keyboard);
+        lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
+    }
 
     return;
-} else {
-    // Delete old image if it exists
-    if (lastCalendarMessage[userId]?.image) {
-        await ctx.deleteMessage(lastCalendarMessage[userId].image).catch(() => {});
-        lastCalendarMessage[userId].image = null;
-    }
-
-    return ctx.editMessageText(caption, keyboard);
 }
-
-}
-
-
-    if (callbackData.startsWith('opened_')) {
-    const day = parseInt(callbackData.split('_')[1]);
-    const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null, question: null };
-
-    let caption = `${content.message}\n\nYou already opened day ${day}! ✓`;
-
-    if (content.question) {
-        caption += `\n\n❓ ${content.question}\n\n💬 Type your answer below:`;
-        // Set user state to expect an answer for this day
-        setUserState(userId, 'waiting_answer', { day: day });
-    } else {
-        caption += '\n\nUse /calendar to see the full calendar.';
-    }
-
-    const keyboard = Markup.inlineKeyboard([
-        [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
-    ]);
-
-    if (content.image) {
-        await ctx.deleteMessage().catch(() => {});
-        return ctx.replyWithPhoto(content.image, {
-            caption: caption,
-            ...keyboard
-        });
-    } else {
-        return ctx.editMessageText(caption, keyboard);
-    }
-}
-
 
     if (callbackData.startsWith('locked_')) {
         const day = parseInt(callbackData.split('_')[1]);
@@ -569,7 +523,7 @@ bot.action(/.*/, async (ctx) => {
 
     // Send updated calendar and save message ID
     const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
-    lastCalendarMessage[userId] = sentMessage.message_id;
+     lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
 }
 
     if (callbackData.startsWith('view_answers_')) {
@@ -719,7 +673,7 @@ cron.schedule('0 10 * * *', async () => {
                 }
             );
           // Save this message ID so it can be deleted later
-lastCalendarMessage[userId] = sentMessage.message_id;
+lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
 
         }
 
@@ -732,47 +686,6 @@ lastCalendarMessage[userId] = sentMessage.message_id;
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
