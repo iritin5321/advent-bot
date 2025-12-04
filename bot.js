@@ -87,11 +87,9 @@ const ADVENT_CONTENT = {
       question: 'Do you agree with this phrase? Why?'
     },
     5: { 
-        message: '🕯️ Day 5: "To give someone the cold shoulder"\n\n' +
-                 '📖 Meaning: To ignore someone or be unfriendly toward them.\n\n' +
-                 '💬 Example: "After our argument, she gave me the cold shoulder at the party."\n\n' +
-                 '❄️ Winter connection: "Cold" reflects the unfriendly behavior!',
-        image: null 
+        message: '🕯️ Day 5: "To give someone the cold shoulder"\n\n',
+                 image: 'https://ibb.co/LXphpQt5',
+      question: 'Why would you give someone a cold shoulder?'
     },
     6: { 
         message: '🎁 Day 6: "Wrap up"\n\n' +
@@ -545,6 +543,14 @@ return ctx.reply(message, createCalendarKeyboard(userId));
         );
     }
 });
+// Handle calendar button from daily reminder
+bot.action("OPEN_CALENDAR", (ctx) => {
+    ctx.answerCbQuery();
+    return ctx.reply(
+        "🎄 Here is your updated Advent Calendar:",
+        createCalendarKeyboard(ctx.from.id)
+    );
+});
 
 // Handle text messages (student answers)
 bot.on('text', (ctx) => {
@@ -624,9 +630,16 @@ cron.schedule('0 11 * * *', async () => {
         // Skip header row
         for (let i = 0; i < rows.length; i++) {
             const userId = rows[i][0];
-            bot.telegram.sendMessage(
+            await bot.telegram.sendMessage(
                 userId,
-                "🎁 Don't forget to open today's Advent box with a new idiom!"
+                "🎁 A new Advent box is open!\nTap the button below to see your updated calendar:",
+                {
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]
+                        ]
+                    }
+                }
             );
         }
 
@@ -639,6 +652,7 @@ cron.schedule('0 11 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
