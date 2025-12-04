@@ -324,7 +324,7 @@ function clearUserState(userId) {
     delete userStates[userId];
 }
 // Start command
-bot.command('start', (ctx) => {
+bot.command('start', async (ctx) => {
   const userId = ctx.from.id;
    const firstName = ctx.from.first_name;
 
@@ -349,7 +349,7 @@ lastCalendarMessage[userId] = sentMessage.message_id;
 });
 
 // Calendar command
-bot.command('calendar', (ctx) => {
+bot.command('calendar', async (ctx) => {
     const message = 
         '🎄 Your Advent Calendar 🎄\n\n' +
         '🎁 = Available to open\n' +
@@ -699,6 +699,7 @@ lastCalendarMessage[userId] = sentMessage.message_id;
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
