@@ -337,8 +337,15 @@ bot.command('start', (ctx) => {
         'Open a new door each day from December 1st to 24th!\n' +
         'Each day reveals a special surprise! 🎁\n\n' +
         'Click on a gift box to open today\'s door!';
-    
-    return ctx.reply(welcomeMessage, createCalendarKeyboard(ctx.from.id));
+      
+// Delete previous calendar if exists
+if (lastCalendarMessage[userId]) {
+    await ctx.deleteMessage(lastCalendarMessage[userId]).catch(() => {});
+}
+
+const sentMessage = await ctx.reply(welcomeMessage, createCalendarKeyboard(userId));
+lastCalendarMessage[userId] = sentMessage.message_id;
+
 });
 
 // Calendar command
@@ -349,7 +356,16 @@ bot.command('calendar', (ctx) => {
         '✓ = Already opened\n' +
         '🔒 = Coming soon';
     
-    return ctx.reply(message, createCalendarKeyboard(ctx.from.id));
+    const userId = ctx.from.id;
+
+// Delete previous calendar if exists
+if (lastCalendarMessage[userId]) {
+    await ctx.deleteMessage(lastCalendarMessage[userId]).catch(() => {});
+}
+
+const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
+lastCalendarMessage[userId] = sentMessage.message_id;
+
 });
 
 // Progress command
@@ -507,16 +523,22 @@ bot.action(/.*/, async (ctx) => {
     }
 
     if (callbackData === 'back_to_calendar') {
-        const message =
-            '🎄 Your Advent Calendar 🎄\n\n' +
-            '🎁 = Available to open\n' +
-            '✓ = Already opened\n' +
-            '🔒 = Coming soon';
+    const message =
+        '🎄 Your Advent Calendar 🎄\n\n' +
+        '🎁 = Available to open\n' +
+        '✓ = Already opened\n' +
+        '🔒 = Coming soon';
 
-        await ctx.deleteMessage().catch(() => {});
-return ctx.reply(message, createCalendarKeyboard(userId));
-
+    // Delete previous calendar if it exists
+    if (lastCalendarMessage[userId]) {
+        await ctx.deleteMessage(lastCalendarMessage[userId]).catch(() => {});
     }
+
+    // Send updated calendar and save message ID
+    const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
+    lastCalendarMessage[userId] = sentMessage.message_id;
+}
+
     if (callbackData.startsWith('view_answers_')) {
         const day = parseInt(callbackData.split('_')[2]);
         const userId = ctx.from.id;
@@ -652,7 +674,7 @@ cron.schedule('0 10 * * *', async () => {
         // Skip header row
         for (let i = 0; i < rows.length; i++) {
             const userId = rows[i][0];
-            await bot.telegram.sendMessage(
+            const sentMessage = await bot.telegram.sendMessage(
                 userId,
                 "🎁 A new Advent box is open!\nTap the button below to see your updated calendar:",
                 {
@@ -663,6 +685,9 @@ cron.schedule('0 10 * * *', async () => {
                     }
                 }
             );
+          // Save this message ID so it can be deleted later
+lastCalendarMessage[userId] = sentMessage.message_id;
+
         }
 
     } catch (err) {
@@ -674,6 +699,7 @@ cron.schedule('0 10 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
