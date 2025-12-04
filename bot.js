@@ -402,6 +402,16 @@ bot.command('answers', (ctx) => {
         Markup.inlineKeyboard(keyboard)
     );
 });
+// Handle calendar button from daily reminder
+bot.action("OPEN_CALENDAR", (ctx) => {
+    ctx.answerCbQuery();
+    return ctx.reply(
+        "🎄 Here is your updated Advent Calendar:",
+        createCalendarKeyboard(ctx.from.id)
+    );
+});
+
+
 // Handle button clicks
 bot.action(/.*/, async (ctx) => {
     const userId = ctx.from.id;
@@ -543,14 +553,6 @@ return ctx.reply(message, createCalendarKeyboard(userId));
         );
     }
 });
-// Handle calendar button from daily reminder
-bot.action("OPEN_CALENDAR", (ctx) => {
-    ctx.answerCbQuery();
-    return ctx.reply(
-        "🎄 Here is your updated Advent Calendar:",
-        createCalendarKeyboard(ctx.from.id)
-    );
-});
 
 // Handle text messages (student answers)
 bot.on('text', (ctx) => {
@@ -652,6 +654,7 @@ cron.schedule('0 10 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
