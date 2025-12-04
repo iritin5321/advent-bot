@@ -228,6 +228,8 @@ const ADVENT_CONTENT = {
 };
 
 // Store user data (in production, use a database)
+const lastCalendarMessage = {}; // store last calendar message IDs per user
+
 const userData = {};
 
 function loadUserData(userId) {
@@ -672,6 +674,7 @@ cron.schedule('0 10 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
