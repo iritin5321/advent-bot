@@ -53,7 +53,87 @@ async function saveAnswerToSheet(day, userName, answer) {
     }
   });
 }
+// Save message IDs to Google Sheets
+async function saveMessageIds(userId, calendarMessageId, imageMessageId) {
+    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
+    const sheetName = 'MessageIds'; // Create this tab in your Google Sheet
 
+    try {
+        // First, check if user already has a row
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: `${sheetName}!A:A`
+        });
+
+        const existingIds = (response.data.values || []).flat();
+        const rowIndex = existingIds.indexOf(userId.toString());
+
+        if (rowIndex >= 0) {
+            // Update existing row
+            await sheets.spreadsheets.values.update({
+                spreadsheetId,
+                range: `${sheetName}!A${rowIndex + 1}:C${rowIndex + 1}`,
+                valueInputOption: 'RAW',
+                requestBody: {
+                    values: [[userId, calendarMessageId || '', imageMessageId || '']]
+                }
+            });
+        } else {
+            // Append new row
+            await sheets.spreadsheets.values.append({
+                spreadsheetId,
+                range: sheetName,
+                valueInputOption: 'RAW',
+                requestBody: {
+                    values: [[userId, calendarMessageId || '', imageMessageId || '']]
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Error saving message IDs:', err);
+    }
+}
+
+// Get message IDs from Google Sheets
+async function getMessageIds(userId) {
+    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
+    const sheetName = 'MessageIds';
+
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: `${sheetName}!A:C`
+        });
+
+        const rows = response.data.values || [];
+        
+        for (let row of rows) {
+            if (row[0] === userId.toString()) {
+                return {
+                    calendar: row[1] ? parseInt(row[1]) : null,
+                    image: row[2] ? parseInt(row[2]) : null
+                };
+            }
+        }
+        
+        return { calendar: null, image: null };
+    } catch (err) {
+        console.error('Error getting message IDs:', err);
+        return { calendar: null, image: null };
+    }
+}
+
+// Delete messages helper function
+async function deleteOldMessages(ctx, userId) {
+    const messageIds = await getMessageIds(userId);
+    
+    if (messageIds.calendar) {
+        await ctx.telegram.deleteMessage(userId, messageIds.calendar).catch(() => {});
+    }
+    if (messageIds.image) {
+        await ctx.telegram.deleteMessage(userId, messageIds.image).catch(() => {});
+    }
+}
 // List of teacher/admin Telegram user IDs (can view all responses)
 const TEACHER_IDS = [
     1763838753,  // Replace with your actual Telegram user ID
@@ -228,7 +308,7 @@ const ADVENT_CONTENT = {
 };
 
 // Store user data (in production, use a database)
-const lastCalendarMessage = {}; // store last calendar message IDs per user
+
 
 const userData = {};
 
@@ -325,34 +405,25 @@ function clearUserState(userId) {
 }
 // Start command
 bot.command('start', async (ctx) => {
-  const userId = ctx.from.id;
-   const firstName = ctx.from.first_name;
+    const userId = ctx.from.id;
+    const firstName = ctx.from.first_name;
 
-
-    // Save to Google Sheets
     await saveUserToSheet(userId, firstName).catch(err => console.error(err));
   
-  const welcomeMessage = 
-        `🎄 Welcome to the Advent Calendar, ${ctx.from.first_name}! 🎄\n\n` +
+    const welcomeMessage = 
+        `🎄 Welcome to the Advent Calendar, ${firstName}! 🎄\n\n` +
         'Open a new door each day from December 1st to 24th!\n' +
         'Each day reveals a special surprise! 🎁\n\n' +
         'Click on a gift box to open today\'s door!';
-      
-// Delete previous calendar if exists
-if (lastCalendarMessage[userId]) {
-        try {
-            console.log('Deleting old message', lastCalendarMessage[userId]);
-            await ctx.deleteMessage(lastCalendarMessage[userId]);
-        } catch (err) {
-            console.log('Could not delete old message:', err.message);
-        }
-    }
 
+    // Delete old messages
+    await deleteOldMessages(ctx, userId);
 
-const sentMessage = await ctx.reply(welcomeMessage, createCalendarKeyboard(userId));
-lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
-
-
+    // Send new calendar
+    const sentMessage = await ctx.reply(welcomeMessage, createCalendarKeyboard(userId));
+    
+    // Save to Google Sheets
+    await saveMessageIds(userId, sentMessage.message_id, null);
 });
 
 // Calendar command
@@ -365,15 +436,14 @@ bot.command('calendar', async (ctx) => {
     
     const userId = ctx.from.id;
 
-// Delete previous calendar if exists
-if (lastCalendarMessage[userId]) {
-    await ctx.deleteMessage(lastCalendarMessage[userId]).catch(() => {});
-}
+    // Delete old messages
+    await deleteOldMessages(ctx, userId);
 
-const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
-lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
-
-
+    // Send new calendar
+    const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
+    
+    // Save to Google Sheets
+    await saveMessageIds(userId, sentMessage.message_id, null);
 });
 
 // Progress command
@@ -434,24 +504,11 @@ bot.action("OPEN_CALENDAR", async (ctx) => {
 
     ctx.answerCbQuery();
 
-    // Delete previous calendar if it exists
-    if (lastCalendarMessage[userId]) {
-        try {
-            await ctx.deleteMessage(lastCalendarMessage[userId]);
-        } catch (err) {
-            // Message might already be deleted or can't delete
-            console.log('No old calendar to delete or failed:', err.message);
-        }
-    }
-
-    // Send updated calendar
+        // Send updated calendar
     const sentMessage = await ctx.reply(
         "🎄 Here is your updated Advent Calendar:",
         createCalendarKeyboard(userId)
     );
-
-    // Save the new messageId
-    lastCalendarMessage[userId] = sentMessage.message_id;
 });
 
 
@@ -461,76 +518,96 @@ bot.action(/.*/, async (ctx) => {
     const userId = ctx.from.id;
     const callbackData = ctx.callbackQuery.data;
 
-   if (callbackData.startsWith('open_') || callbackData.startsWith('opened_')) {
-    const day = parseInt(callbackData.split('_')[1]);
-    saveOpenedDay(userId, day);
+    // Handle opening/reopening a day
+    if (callbackData.startsWith('open_') || callbackData.startsWith('opened_')) {
+        const day = parseInt(callbackData.split('_')[1]);
+        saveOpenedDay(userId, day);
 
-    const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null, question: null };
+        const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null, question: null };
 
-    let caption = `${content.message}\n\n`;
-    caption += callbackData.startsWith('open_') ? `You've opened day ${day}! 🎉` : `You already opened day ${day}! ✓`;
+        let caption = `${content.message}\n\n`;
+        caption += callbackData.startsWith('open_') 
+            ? `You've opened day ${day}! 🎉` 
+            : `You already opened day ${day}! ✓`;
 
-    if (content.question) {
-        caption += `\n\n❓ ${content.question}\n\n💬 Type your answer below:`;
-        setUserState(userId, 'waiting_answer', { day });
-    } else {
-        caption += '\n\nUse /calendar to see the full calendar.';
-    }
-
-    const keyboard = Markup.inlineKeyboard([
-        [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
-    ]);
-
-    // Delete previous messages if exist
-    if (lastCalendarMessage[userId]) {
-        if (lastCalendarMessage[userId].calendar) {
-            await ctx.deleteMessage(lastCalendarMessage[userId].calendar).catch(() => {});
+        if (content.question) {
+            caption += `\n\n❓ ${content.question}\n\n💬 Type your answer below:`;
+            setUserState(userId, 'waiting_answer', { day });
+        } else {
+            caption += '\n\nUse /calendar to see the full calendar.';
         }
-        if (lastCalendarMessage[userId].image) {
-            await ctx.deleteMessage(lastCalendarMessage[userId].image).catch(() => {});
+
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
+        ]);
+
+        // Delete old messages
+        await deleteOldMessages(ctx, userId);
+
+        // Send new message (image or text)
+        if (content.image) {
+            const sentMessage = await ctx.replyWithPhoto(content.image, { caption, ...keyboard });
+            await saveMessageIds(userId, null, sentMessage.message_id);
+        } else {
+            const sentMessage = await ctx.reply(caption, keyboard);
+            await saveMessageIds(userId, sentMessage.message_id, null);
         }
+
+        return ctx.answerCbQuery();
     }
 
-    if (content.image) {
-        const sentMessage = await ctx.replyWithPhoto(content.image, { caption, ...keyboard });
-        lastCalendarMessage[userId] = { calendar: null, image: sentMessage.message_id };
-    } else {
-        const sentMessage = await ctx.reply(caption, keyboard);
-        lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
-    }
-
-    return;
-}
-
+    // Handle locked days
     if (callbackData.startsWith('locked_')) {
         const day = parseInt(callbackData.split('_')[1]);
-        return ctx.answerCbQuery(`Day ${day} is still locked! Come back on December ${day}! 🔒`, {
-            show_alert: true
-        });
+        return ctx.answerCbQuery(
+            `Day ${day} is still locked! Come back on December ${day}! 🔒`, 
+            { show_alert: true }
+        );
     }
 
+    // Handle back to calendar
     if (callbackData === 'back_to_calendar') {
-    const message =
-        '🎄 Your Advent Calendar 🎄\n\n' +
-        '🎁 = Available to open\n' +
-        '✓ = Already opened\n' +
-        '🔒 = Coming soon';
+        const message =
+            '🎄 Your Advent Calendar 🎄\n\n' +
+            '🎁 = Available to open\n' +
+            '✓ = Already opened\n' +
+            '🔒 = Coming soon';
 
-    // Delete previous calendar if it exists
-    if (lastCalendarMessage[userId]) {
-        await ctx.deleteMessage(lastCalendarMessage[userId]).catch(() => {});
+        // Delete old messages
+        await deleteOldMessages(ctx, userId);
+
+        // Send new calendar
+        const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
+        
+        // Save to Google Sheets
+        await saveMessageIds(userId, sentMessage.message_id, null);
+        
+        return ctx.answerCbQuery();
     }
 
-    // Send updated calendar and save message ID
-    const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
-     lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
-}
+    // Handle calendar from notification
+    if (callbackData === 'OPEN_CALENDAR') {
+        const message = '🎄 Your Advent Calendar 🎄\n\n' +
+            '🎁 = Available to open\n' +
+            '✓ = Already opened\n' +
+            '🔒 = Coming soon';
 
+        // Delete old messages
+        await deleteOldMessages(ctx, userId);
+
+        // Send new calendar
+        const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
+        
+        // Save to Google Sheets
+        await saveMessageIds(userId, sentMessage.message_id, null);
+        
+        return ctx.answerCbQuery();
+    }
+
+    // Teacher panel - view answers
     if (callbackData.startsWith('view_answers_')) {
         const day = parseInt(callbackData.split('_')[2]);
-        const userId = ctx.from.id;
 
-        // Double-check teacher status
         if (!isTeacher(userId)) {
             return ctx.answerCbQuery('❌ Unauthorized', { show_alert: true });
         }
@@ -558,6 +635,7 @@ bot.action(/.*/, async (ctx) => {
         ]));
     }
 
+    // Teacher panel - back to days
     if (callbackData === 'back_to_teacher_panel') {
         const keyboard = [];
         let row = [];
@@ -645,7 +723,7 @@ const cron = require('node-cron');
 
 // Daily reminder at 10:00 server time
 cron.schedule('0 10 * * *', async () => {
-    console.log("Sending daily reminders...");
+    console.log("📬 Sending daily reminders...");
 
     const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
     const sheetName = 'Users';
@@ -658,34 +736,48 @@ cron.schedule('0 10 * * *', async () => {
 
         const rows = response.data.values || [];
 
-        // Skip header row
-        for (let i = 0; i < rows.length; i++) {
+        for (let i = 1; i < rows.length; i++) { // Skip header row
             const userId = rows[i][0];
-            const sentMessage = await bot.telegram.sendMessage(
-                userId,
-                "🎁 A new Advent box is open!\nTap the button below to see your updated calendar:",
-                {
-                    reply_markup: {
-                        inline_keyboard: [
-                            [{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]
-                        ]
+            
+            if (userId) {
+                // Delete old calendar first
+                await deleteOldMessages({ telegram: bot.telegram }, userId);
+                
+                // Send reminder with button
+                const sentMessage = await bot.telegram.sendMessage(
+                    userId,
+                    "🎁 A new Advent box is open!\nTap the button below to see your updated calendar:",
+                    {
+                        reply_markup: {
+                            inline_keyboard: [
+                                [{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]
+                            ]
+                        }
                     }
+                ).catch(err => {
+                    console.error(`Failed to send to ${userId}:`, err.message);
+                    return null;
+                });
+                
+                if (sentMessage) {
+                    // Save notification message ID
+                    await saveMessageIds(userId, sentMessage.message_id, null);
                 }
-            );
-          // Save this message ID so it can be deleted later
-lastCalendarMessage[userId] = { calendar: sentMessage.message_id, image: null };
-
+            }
         }
-
+        
+        console.log("✅ Daily reminders sent");
     } catch (err) {
         console.error('Error fetching users for reminders:', err);
     }
-},
-             { timezone: 'Europe/Belgrade' });
+}, {
+    timezone: 'Europe/Belgrade'
+});
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
