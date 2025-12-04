@@ -403,13 +403,31 @@ bot.command('answers', (ctx) => {
     );
 });
 // Handle calendar button from daily reminder
-bot.action("OPEN_CALENDAR", (ctx) => {
+bot.action("OPEN_CALENDAR", async (ctx) => {
+    const userId = ctx.from.id;
+
     ctx.answerCbQuery();
-    return ctx.reply(
+
+    // Delete previous calendar if it exists
+    if (lastCalendarMessage[userId]) {
+        try {
+            await ctx.deleteMessage(lastCalendarMessage[userId]);
+        } catch (err) {
+            // Message might already be deleted or can't delete
+            console.log('No old calendar to delete or failed:', err.message);
+        }
+    }
+
+    // Send updated calendar
+    const sentMessage = await ctx.reply(
         "🎄 Here is your updated Advent Calendar:",
-        createCalendarKeyboard(ctx.from.id)
+        createCalendarKeyboard(userId)
     );
+
+    // Save the new messageId
+    lastCalendarMessage[userId] = sentMessage.message_id;
 });
+
 
 
 // Handle button clicks
@@ -601,17 +619,17 @@ bot.catch((err, ctx) => {
    });
 const DOMAIN = 'https://advent-bot-v1th.onrender.com'; // your Render URL, e.g., https://my-bot.onrender.com
 
-// bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`);
-// app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
+ bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`);
+ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 
    app.listen(PORT, () => {
        console.log(`Web server running on port ${PORT}`);
    });
 
    // Start the bot
-bot.launch().then(() => {
-  console.log('Bot is running...');
-});
+// bot.launch().then(() => {
+//  console.log('Bot is running...');
+// });
 const cron = require('node-cron');
 
 // Daily reminder at 10:00 server time
@@ -654,6 +672,7 @@ cron.schedule('0 10 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
