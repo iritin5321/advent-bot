@@ -330,7 +330,7 @@ bot.command('start', async (ctx) => {
 
 
     // Save to Google Sheets
-    saveUserToSheet(userId, firstName).catch(err => console.error(err));
+    await saveUserToSheet(userId, firstName).catch(err => console.error(err));
   
   const welcomeMessage = 
         `🎄 Welcome to the Advent Calendar, ${ctx.from.first_name}! 🎄\n\n` +
@@ -340,8 +340,14 @@ bot.command('start', async (ctx) => {
       
 // Delete previous calendar if exists
 if (lastCalendarMessage[userId]) {
-    await ctx.deleteMessage(lastCalendarMessage[userId]).catch(() => {});
-}
+        try {
+            console.log('Deleting old message', lastCalendarMessage[userId]);
+            await ctx.deleteMessage(lastCalendarMessage[userId]);
+        } catch (err) {
+            console.log('Could not delete old message:', err.message);
+        }
+    }
+
 
 const sentMessage = await ctx.reply(welcomeMessage, createCalendarKeyboard(userId));
 lastCalendarMessage[userId] = sentMessage.message_id;
@@ -699,6 +705,7 @@ lastCalendarMessage[userId] = sentMessage.message_id;
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
