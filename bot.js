@@ -1,131 +1,5 @@
-const { Telegraf, Markup } = require('telegraf');
-const express = require('express');
-const { google } = require('googleapis');
-const fs = require('fs');
-const credentials = JSON.parse(process.env.SERVICE_ACCOUNT_JSON);
-
-const auth = new google.auth.GoogleAuth({
-  credentials,
-  scopes: ['https://www.googleapis.com/auth/spreadsheets']
-});
-
-const sheets = google.sheets({ version: 'v4', auth });
-// Bot configuration
-const BOT_TOKEN = process.env.BOT_TOKEN || '8389541552:AAFrzMsztke1dK68PJREs7OIpQFtRLTsXCw';
-const bot = new Telegraf(BOT_TOKEN);
-
-async function saveUserToSheet(userId, firstName) {
-    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
-    const sheetName = 'Users';
-
-    try {
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId,
-            range: `${sheetName}!A:A`
-        });
-
-        const existingIds = (response.data.values || []).flat();
-
-        if (!existingIds.includes(userId.toString())) {
-            await sheets.spreadsheets.values.append({
-                spreadsheetId,
-                range: sheetName,
-                valueInputOption: 'RAW',
-                requestBody: {
-                    values: [[userId, firstName, new Date().toLocaleString()]]
-                }
-            });
-        }
-    } catch (err) {
-        console.error('Error saving user:', err);
-    }
-}
-
-
-async function saveAnswerToSheet(day, userName, answer) {
-  const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE'; // replace with your Google Sheet ID
-  await sheets.spreadsheets.values.append({
-    spreadsheetId,
-    range: 'Sheet1', // Columns: Date, Day, Student, Answer
-    valueInputOption: 'RAW',
-    requestBody: {
-      values: [[new Date().toLocaleString(), day, userName, answer]]
-    }
-  });
-}
-// Save message IDs to Google Sheets
-async function saveMessageIds(userId, calendarMessageId, imageMessageId) {
-    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
-    const sheetName = 'MessageIds'; // Create this tab in your Google Sheet
-
-    try {
-        // First, check if user already has a row
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId,
-            range: `${sheetName}!A:A`
-        });
-
-        const existingIds = (response.data.values || []).flat();
-        const rowIndex = existingIds.indexOf(userId.toString());
-
-        if (rowIndex >= 0) {
-            // Update existing row
-            await sheets.spreadsheets.values.update({
-                spreadsheetId,
-                range: `${sheetName}!A${rowIndex + 1}:C${rowIndex + 1}`,
-                valueInputOption: 'RAW',
-                requestBody: {
-                    values: [[userId, calendarMessageId || '', imageMessageId || '']]
-                }
-            });
-        } else {
-            // Append new row
-            await sheets.spreadsheets.values.append({
-                spreadsheetId,
-                range: sheetName,
-                valueInputOption: 'RAW',
-                requestBody: {
-                    values: [[userId, calendarMessageId || '', imageMessageId || '']]
-                }
-            });
-        }
-    } catch (err) {
-        console.error('Error saving message IDs:', err);
-    }
-}
-
-// Get message IDs from Google Sheets
-async function getMessageIds(userId) {
-    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
-    const sheetName = 'MessageIds';
-
-    try {
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId,
-            range: `${sheetName}!A:C`
-        });
-
-        const rows = response.data.values || [];
-        
-        for (let row of rows) {
-            if (row[0] === userId.toString()) {
-                return {
-                    calendar: row[1] ? parseInt(row[1]) : null,
-                    image: row[2] ? parseInt(row[2]) : null
-                };
-            }
-        }
-        
-        return { calendar: null, image: null };
-    } catch (err) {
-        console.error('Error getting message IDs:', err);
-        return { calendar: null, image: null };
-    }
-}
-
-// Delete messages helper function
-async function deleteOldMessages(ctx, userId) {
-    const messageIds = await getMessageIds(userId);
+, userId) {
+    const messageIds = getMessageIds(userId);
     
     if (messageIds.calendar) {
         await ctx.telegram.deleteMessage(userId, messageIds.calendar).catch(() => {});
@@ -134,11 +8,9 @@ async function deleteOldMessages(ctx, userId) {
         await ctx.telegram.deleteMessage(userId, messageIds.image).catch(() => {});
     }
 }
-// List of teacher/admin Telegram user IDs (can view all responses)
-const TEACHER_IDS = [
-    1763838753,  // Replace with your actual Telegram user ID
-    // Add more teacher IDs here
-];
+
+// Teacher IDs
+const TEACHER_IDS = [1763838753];
 
 function isTeacher(userId) {
     return TEACHER_IDS.includes(userId);
@@ -303,17 +175,13 @@ const ADVENT_CONTENT = {
     },
 };
 
-// Store user data (in production, use a database)
-
-
+// User data storage
 const userData = {};
+const userStates = {};
 
 function loadUserData(userId) {
     if (!userData[userId]) {
-        userData[userId] = { 
-            openedDays: [],
-            answers: {}  // Store answers by day number
-        };
+        userData[userId] = { openedDays: [], answers: {} };
     }
     return userData[userId];
 }
@@ -351,7 +219,7 @@ function saveOpenedDay(userId, day) {
 
 function createCalendarKeyboard(userId) {
     const now = new Date();
-    const currentDay = now.getMonth() === 11 ? now.getDate() : 0; // 11 = December (0-indexed)
+    const currentDay = now.getMonth() === 11 ? now.getDate() : 25;
     const userOpened = loadUserData(userId).openedDays;
     
     const keyboard = [];
@@ -373,7 +241,6 @@ function createCalendarKeyboard(userId) {
         
         row.push(Markup.button.callback(buttonText, callbackData));
         
-        // Create rows of 6 buttons
         if (row.length === 6) {
             keyboard.push(row);
             row = [];
@@ -386,7 +253,6 @@ function createCalendarKeyboard(userId) {
     
     return Markup.inlineKeyboard(keyboard);
 }
-const userStates = {};
 
 function setUserState(userId, state, data = {}) {
     userStates[userId] = { state, ...data };
@@ -399,12 +265,14 @@ function getUserState(userId) {
 function clearUserState(userId) {
     delete userStates[userId];
 }
-// Start command
+
+// Bot commands
 bot.command('start', async (ctx) => {
     const userId = ctx.from.id;
     const firstName = ctx.from.first_name;
 
-    await saveUserToSheet(userId, firstName).catch(err => console.error(err));
+    // Save to Google Sheets in background
+    saveUserToSheet(userId, firstName).catch(() => {});
   
     const welcomeMessage = 
         `🎄 Welcome to the Advent Calendar, ${firstName}! 🎄\n\n` +
@@ -412,17 +280,11 @@ bot.command('start', async (ctx) => {
         'Each day reveals a special surprise! 🎁\n\n' +
         'Click on a gift box to open today\'s door!';
 
-    // Delete old messages
     await deleteOldMessages(ctx, userId);
-
-    // Send new calendar
     const sentMessage = await ctx.reply(welcomeMessage, createCalendarKeyboard(userId));
-    
-    // Save to Google Sheets
-    await saveMessageIds(userId, sentMessage.message_id, null);
+    saveMessageIds(userId, sentMessage.message_id, null);
 });
 
-// Calendar command
 bot.command('calendar', async (ctx) => {
     const message = 
         '🎄 Your Advent Calendar 🎄\n\n' +
@@ -432,17 +294,11 @@ bot.command('calendar', async (ctx) => {
     
     const userId = ctx.from.id;
 
-    // Delete old messages
     await deleteOldMessages(ctx, userId);
-
-    // Send new calendar
     const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
-    
-    // Save to Google Sheets
-    await saveMessageIds(userId, sentMessage.message_id, null);
+    saveMessageIds(userId, sentMessage.message_id, null);
 });
 
-// Progress command
 bot.command('progress', (ctx) => {
     const userId = ctx.from.id;
     const openedDays = loadUserData(userId).openedDays;
@@ -463,16 +319,14 @@ bot.command('progress', (ctx) => {
     
     return ctx.reply(progressText);
 });
-// Teacher command to view all answers
+
 bot.command('answers', (ctx) => {
     const userId = ctx.from.id;
 
-    // Check if user is a teacher
     if (!isTeacher(userId)) {
         return ctx.reply('❌ Sorry, only teachers can view answers.');
     }
 
-    // Ask which day to view
     const keyboard = [];
     let row = [];
     
@@ -494,194 +348,144 @@ bot.command('answers', (ctx) => {
         Markup.inlineKeyboard(keyboard)
     );
 });
-// Handle calendar button from daily reminder
-bot.action("OPEN_CALENDAR", async (ctx) => {
-    const userId = ctx.from.id;
 
-    ctx.answerCbQuery();
-
-        // Send updated calendar
-    const sentMessage = await ctx.reply(
-        "🎄 Here is your updated Advent Calendar:",
-        createCalendarKeyboard(userId)
-    );
-});
-
-
-
-// Handle button clicks
+// Button actions
 bot.action(/.*/, async (ctx) => {
     const userId = ctx.from.id;
     const callbackData = ctx.callbackQuery.data;
 
-    // Handle opening/reopening a day
-    if (callbackData.startsWith('open_') || callbackData.startsWith('opened_')) {
-        const day = parseInt(callbackData.split('_')[1]);
-        saveOpenedDay(userId, day);
+    try {
+        if (callbackData.startsWith('open_') || callbackData.startsWith('opened_')) {
+            const day = parseInt(callbackData.split('_')[1]);
+            saveOpenedDay(userId, day);
 
-        const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null, question: null };
+            const content = ADVENT_CONTENT[day] || { message: `Day ${day}!`, image: null, question: null };
 
-        let caption = `${content.message}\n\n`;
-        caption += callbackData.startsWith('open_') 
-            ? `You've opened day ${day}! 🎉` 
-            : `You already opened day ${day}! ✓`;
+            let caption = `${content.message}\n\n`;
+            caption += callbackData.startsWith('open_') 
+                ? `You've opened day ${day}! 🎉` 
+                : `You already opened day ${day}! ✓`;
 
-        if (content.question) {
-            caption += `\n\n❓ ${content.question}\n\n💬 Type your answer below:`;
-            setUserState(userId, 'waiting_answer', { day });
-        } else {
-            caption += '\n\nUse /calendar to see the full calendar.';
-        }
-
-        const keyboard = Markup.inlineKeyboard([
-            [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
-        ]);
-
-        // Delete old messages
-        await deleteOldMessages(ctx, userId);
-
-        // Send new message (image or text)
-        if (content.image) {
-            const sentMessage = await ctx.replyWithPhoto(content.image, { caption, ...keyboard });
-            await saveMessageIds(userId, null, sentMessage.message_id);
-        } else {
-            const sentMessage = await ctx.reply(caption, keyboard);
-            await saveMessageIds(userId, sentMessage.message_id, null);
-        }
-
-        return ctx.answerCbQuery();
-    }
-
-    // Handle locked days
-    if (callbackData.startsWith('locked_')) {
-        const day = parseInt(callbackData.split('_')[1]);
-        return ctx.answerCbQuery(
-            `Day ${day} is still locked! Come back on December ${day}! 🔒`, 
-            { show_alert: true }
-        );
-    }
-
-    // Handle back to calendar
-    if (callbackData === 'back_to_calendar') {
-        const message =
-            '🎄 Your Advent Calendar 🎄\n\n' +
-            '🎁 = Available to open\n' +
-            '✓ = Already opened\n' +
-            '🔒 = Coming soon';
-
-        // Delete old messages
-        await deleteOldMessages(ctx, userId);
-
-        // Send new calendar
-        const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
-        
-        // Save to Google Sheets
-        await saveMessageIds(userId, sentMessage.message_id, null);
-        
-        return ctx.answerCbQuery();
-    }
-
-    // Handle calendar from notification
-    if (callbackData === 'OPEN_CALENDAR') {
-        const message = '🎄 Your Advent Calendar 🎄\n\n' +
-            '🎁 = Available to open\n' +
-            '✓ = Already opened\n' +
-            '🔒 = Coming soon';
-
-        // Delete old messages
-        await deleteOldMessages(ctx, userId);
-
-        // Send new calendar
-        const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
-        
-        // Save to Google Sheets
-        await saveMessageIds(userId, sentMessage.message_id, null);
-        
-        return ctx.answerCbQuery();
-    }
-
-    // Teacher panel - view answers
-    if (callbackData.startsWith('view_answers_')) {
-        const day = parseInt(callbackData.split('_')[2]);
-
-        if (!isTeacher(userId)) {
-            return ctx.answerCbQuery('❌ Unauthorized', { show_alert: true });
-        }
-
-        const answers = getAllAnswers(day);
-
-        if (answers.length === 0) {
-            return ctx.answerCbQuery(`No answers yet for Day ${day}`, { show_alert: true });
-        }
-
-        let message = `📊 Student Answers for Day ${day}\n`;
-        message += `Question: ${ADVENT_CONTENT[day]?.question || 'N/A'}\n\n`;
-        message += `Total responses: ${answers.length}\n\n`;
-        message += '─────────────────\n\n';
-
-        answers.forEach((item, index) => {
-            message += `${index + 1}. ${item.userName}\n`;
-            message += `💬 "${item.answer}"\n`;
-            message += `🕒 ${new Date(item.timestamp).toLocaleString()}\n\n`;
-        });
-
-        await ctx.deleteMessage().catch(() => {});
-        return ctx.reply(message, Markup.inlineKeyboard([
-            [Markup.button.callback('« Back to Days', 'back_to_teacher_panel')]
-        ]));
-    }
-
-    // Teacher panel - back to days
-    if (callbackData === 'back_to_teacher_panel') {
-        const keyboard = [];
-        let row = [];
-        
-        for (let day = 1; day <= 24; day++) {
-            row.push(Markup.button.callback(`Day ${day}`, `view_answers_${day}`));
-            
-            if (row.length === 6) {
-                keyboard.push(row);
-                row = [];
+            if (content.question) {
+                caption += `\n\n❓ ${content.question}\n\n💬 Type your answer below:`;
+                setUserState(userId, 'waiting_answer', { day });
+            } else {
+                caption += '\n\nUse /calendar to see the full calendar.';
             }
-        }
-        
-        if (row.length > 0) {
-            keyboard.push(row);
+
+            const keyboard = Markup.inlineKeyboard([
+                [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
+            ]);
+
+            await deleteOldMessages(ctx, userId);
+
+            if (content.image) {
+                const sentMessage = await ctx.replyWithPhoto(content.image, { caption, ...keyboard });
+                saveMessageIds(userId, null, sentMessage.message_id);
+            } else {
+                const sentMessage = await ctx.reply(caption, keyboard);
+                saveMessageIds(userId, sentMessage.message_id, null);
+            }
+
+            return ctx.answerCbQuery();
         }
 
-        await ctx.deleteMessage().catch(() => {});
-        return ctx.reply(
-            '👨‍🏫 Teacher Panel: Select a day to view student answers',
-            Markup.inlineKeyboard(keyboard)
-        );
+        if (callbackData.startsWith('locked_')) {
+            const day = parseInt(callbackData.split('_')[1]);
+            return ctx.answerCbQuery(
+                `Day ${day} is still locked! Come back on December ${day}! 🔒`, 
+                { show_alert: true }
+            );
+        }
+
+        if (callbackData === 'back_to_calendar' || callbackData === 'OPEN_CALENDAR') {
+            const message =
+                '🎄 Your Advent Calendar 🎄\n\n' +
+                '🎁 = Available to open\n' +
+                '✓ = Already opened\n' +
+                '🔒 = Coming soon';
+
+            await deleteOldMessages(ctx, userId);
+            const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
+            saveMessageIds(userId, sentMessage.message_id, null);
+            
+            return ctx.answerCbQuery();
+        }
+
+        if (callbackData.startsWith('view_answers_')) {
+            const day = parseInt(callbackData.split('_')[2]);
+
+            if (!isTeacher(userId)) {
+                return ctx.answerCbQuery('❌ Unauthorized', { show_alert: true });
+            }
+
+            const answers = getAllAnswers(day);
+
+            if (answers.length === 0) {
+                return ctx.answerCbQuery(`No answers yet for Day ${day}`, { show_alert: true });
+            }
+
+            let message = `📊 Student Answers for Day ${day}\n`;
+            message += `Question: ${ADVENT_CONTENT[day]?.question || 'N/A'}\n\n`;
+            message += `Total responses: ${answers.length}\n\n─────────────────\n\n`;
+
+            answers.forEach((item, index) => {
+                message += `${index + 1}. ${item.userName}\n💬 "${item.answer}"\n🕒 ${new Date(item.timestamp).toLocaleString()}\n\n`;
+            });
+
+            await ctx.deleteMessage().catch(() => {});
+            return ctx.reply(message, Markup.inlineKeyboard([
+                [Markup.button.callback('« Back to Days', 'back_to_teacher_panel')]
+            ]));
+        }
+
+        if (callbackData === 'back_to_teacher_panel') {
+            const keyboard = [];
+            let row = [];
+            
+            for (let day = 1; day <= 24; day++) {
+                row.push(Markup.button.callback(`Day ${day}`, `view_answers_${day}`));
+                
+                if (row.length === 6) {
+                    keyboard.push(row);
+                    row = [];
+                }
+            }
+            
+            if (row.length > 0) {
+                keyboard.push(row);
+            }
+
+            await ctx.deleteMessage().catch(() => {});
+            return ctx.reply(
+                '👨‍🏫 Teacher Panel: Select a day to view student answers',
+                Markup.inlineKeyboard(keyboard)
+            );
+        }
+    } catch (err) {
+        console.error('Action error:', err.message);
+        return ctx.answerCbQuery('Something went wrong. Try again!').catch(() => {});
     }
 });
 
-// Handle text messages (student answers)
+// Handle text messages
 bot.on('text', (ctx) => {
     const userId = ctx.from.id;
     const userName = ctx.from.first_name + (ctx.from.last_name ? ' ' + ctx.from.last_name : '');
     const userState = getUserState(userId);
 
-    // Check if user is answering a question
     if (userState.state === 'waiting_answer') {
         const day = userState.day;
         const answer = ctx.message.text;
 
-        // Save the answer
         saveAnswer(userId, day, answer, userName);
-
-// Save to Google Sheets
-saveAnswerToSheet(day, userName, answer)
-    .catch(err => console.error('Error saving to Google Sheets:', err));
-
-      // ✅ Save user ID to Users tab (for notifications)
-    saveUserToSheet(userId, ctx.from.first_name)
-        .catch(err => console.error('Error saving user ID:', err));
+        
+        // Save to Google Sheets in background
+        saveAnswerToSheet(day, userName, answer).catch(() => {});
+        saveUserToSheet(userId, ctx.from.first_name).catch(() => {});
         
         clearUserState(userId);
 
-        // Confirm to student
         ctx.reply(
             `✅ Thank you! Your answer has been saved.\n\n` +
             `Your response: "${answer}"\n\n` +
@@ -689,91 +493,86 @@ saveAnswerToSheet(day, userName, answer)
         );
     }
 });
+
 // Error handling
 bot.catch((err, ctx) => {
-    console.error('Error occurred:', err);
+    console.error('Error occurred:', err.message);
+    if (ctx) {
+        ctx.reply('Sorry, something went wrong. Try /calendar again!').catch(() => {});
+    }
 });
 
+// Express server
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Create a simple web server for Render
-   const app = express();
-   const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => {
+    res.send('Advent Calendar Bot is running! 🎄');
+});
 
-   app.get('/', (req, res) => {
-       res.send('Advent Calendar Bot is running! 🎄');
-   });
-const DOMAIN = 'https://advent-bot-v1th.onrender.com'; // your Render URL, e.g., https://my-bot.onrender.com
+const DOMAIN = 'https://advent-bot-v1th.onrender.com';
 
-bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`);
+bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`).then(() => {
+    console.log('✅ Webhook set');
+}).catch(err => {
+    console.error('❌ Webhook error:', err.message);
+});
+
 app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 
-   app.listen(PORT, () => {
-       console.log(`Web server running on port ${PORT}`);
-   });
+app.listen(PORT, () => {
+    console.log(`🌐 Server running on port ${PORT}`);
+    
+    // Load message IDs from Google Sheets on startup
+    loadMessageIdsFromSheet().then(() => {
+        console.log('🤖 Bot ready!');
+    });
+});
 
-   // Start the bot
-// bot.launch().then(() => {
-// console.log('Bot is running...');
-// });
-const cron = require('node-cron');
-
-// Daily reminder at 10:00 server time
-cron.schedule('0 11 * * *', async () => {
+// Daily reminders
+cron.schedule('0 10 * * *', async () => {
     console.log("📬 Sending daily reminders...");
-
-    const spreadsheetId = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
-    const sheetName = 'Users';
 
     try {
         const response = await sheets.spreadsheets.values.get({
-            spreadsheetId,
-            range: `${sheetName}!A:A`
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'Users!A:A'
         });
 
         const rows = response.data.values || [];
 
-        for (let i = 1; i < rows.length; i++) { // Skip header row
+        for (let i = 1; i < rows.length; i++) {
             const userId = rows[i][0];
             
             if (userId) {
-                // Delete old calendar first
                 await deleteOldMessages({ telegram: bot.telegram }, userId);
                 
-                // Send reminder with button
                 const sentMessage = await bot.telegram.sendMessage(
                     userId,
-                    "🎁 A new Advent box is open!\nTap the button below to see your updated calendar:",
+                    "🎁 A new Advent box is open!\nTap below to see your calendar:",
                     {
                         reply_markup: {
-                            inline_keyboard: [
-                                [{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]
-                            ]
+                            inline_keyboard: [[{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]]
                         }
                     }
-                ).catch(err => {
-                    console.error(`Failed to send to ${userId}:`, err.message);
-                    return null;
-                });
+                ).catch(err => null);
                 
                 if (sentMessage) {
-                    // Save notification message ID
-                    await saveMessageIds(userId, sentMessage.message_id, null);
+                    saveMessageIds(userId, sentMessage.message_id, null);
                 }
             }
         }
         
-        console.log("✅ Daily reminders sent");
+        console.log("✅ Reminders sent");
     } catch (err) {
-        console.error('Error fetching users for reminders:', err);
+        console.error('Reminder error:', err.message);
     }
 }, {
     timezone: 'Europe/Belgrade'
 });
-// Enable graceful stop
+
 process.once('SIGINT', () => bot.stop('SIGINT'));
-
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
-
 
 
 
