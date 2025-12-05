@@ -1,4 +1,144 @@
-, userId) {
+const { Telegraf, Markup } = require('telegraf');
+const express = require('express');
+const { google } = require('googleapis');
+const cron = require('node-cron');
+
+// Google Sheets setup
+const credentials = JSON.parse(process.env.SERVICE_ACCOUNT_JSON);
+
+const auth = new google.auth.GoogleAuth({
+  credentials,
+  scopes: ['https://www.googleapis.com/auth/spreadsheets']
+});
+
+const sheets = google.sheets({ version: 'v4', auth });
+const SPREADSHEET_ID = '1Sa4eOSmt4sxYq2ksmLqOGH3n4yod0lJmGJqW8ZXQgiE';
+
+// Bot configuration
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const bot = new Telegraf(BOT_TOKEN);
+
+// In-memory cache for message IDs (fast access)
+const messageCache = {};
+
+// Google Sheets functions (run in background, non-blocking)
+async function saveUserToSheet(userId, firstName) {
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'Users!A:A'
+        });
+
+        const existingIds = (response.data.values || []).flat();
+
+        if (!existingIds.includes(userId.toString())) {
+            await sheets.spreadsheets.values.append({
+                spreadsheetId: SPREADSHEET_ID,
+                range: 'Users',
+                valueInputOption: 'RAW',
+                requestBody: {
+                    values: [[userId, firstName, new Date().toLocaleString()]]
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Error saving user:', err.message);
+    }
+}
+
+async function saveAnswerToSheet(day, userName, answer) {
+    try {
+        await sheets.spreadsheets.values.append({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'Sheet1',
+            valueInputOption: 'RAW',
+            requestBody: {
+                values: [[new Date().toLocaleString(), day, userName, answer]]
+            }
+        });
+    } catch (err) {
+        console.error('Error saving answer:', err.message);
+    }
+}
+
+// Save message IDs to Google Sheets (background operation)
+async function saveMessageIdsToSheet(userId, calendarMessageId, imageMessageId) {
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'MessageIds!A:A'
+        });
+
+        const existingIds = (response.data.values || []).flat();
+        const rowIndex = existingIds.indexOf(userId.toString());
+
+        if (rowIndex >= 0) {
+            await sheets.spreadsheets.values.update({
+                spreadsheetId: SPREADSHEET_ID,
+                range: `MessageIds!A${rowIndex + 1}:C${rowIndex + 1}`,
+                valueInputOption: 'RAW',
+                requestBody: {
+                    values: [[userId, calendarMessageId || '', imageMessageId || '']]
+                }
+            });
+        } else {
+            await sheets.spreadsheets.values.append({
+                spreadsheetId: SPREADSHEET_ID,
+                range: 'MessageIds',
+                valueInputOption: 'RAW',
+                requestBody: {
+                    values: [[userId, calendarMessageId || '', imageMessageId || '']]
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Error saving message IDs:', err.message);
+    }
+}
+
+// Load message IDs from Google Sheets on startup
+async function loadMessageIdsFromSheet() {
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'MessageIds!A:C'
+        });
+
+        const rows = response.data.values || [];
+        
+        for (let row of rows) {
+            if (row[0]) {
+                messageCache[row[0]] = {
+                    calendar: row[1] ? parseInt(row[1]) : null,
+                    image: row[2] ? parseInt(row[2]) : null
+                };
+            }
+        }
+        
+        console.log(`✅ Loaded ${Object.keys(messageCache).length} message IDs from cache`);
+    } catch (err) {
+        console.error('Error loading message IDs:', err.message);
+    }
+}
+
+// Fast message ID management (uses cache)
+function saveMessageIds(userId, calendarMessageId, imageMessageId) {
+    messageCache[userId] = {
+        calendar: calendarMessageId,
+        image: imageMessageId
+    };
+    
+    // Save to Google Sheets in background (don't wait)
+    saveMessageIdsToSheet(userId, calendarMessageId, imageMessageId).catch(err => {
+        console.error('Background save failed:', err.message);
+    });
+}
+
+function getMessageIds(userId) {
+    return messageCache[userId] || { calendar: null, image: null };
+}
+
+async function deleteOldMessages(ctx, userId) {
     const messageIds = getMessageIds(userId);
     
     if (messageIds.calendar) {
@@ -573,6 +713,7 @@ cron.schedule('0 10 * * *', async () => {
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
