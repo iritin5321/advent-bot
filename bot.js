@@ -172,11 +172,9 @@ const ADVENT_CONTENT = {
       question: 'Why would you give someone a cold shoulder?'
     },
     6: { 
-        message: '🎁 Day 6: "Wrap up"\n\n' +
-                 '📖 Meaning: To finish something or to dress warmly.\n\n' +
-                 '💬 Example: "Let\'s wrap up this meeting before lunch." OR "Wrap up warm, it\'s freezing outside!"\n\n' +
-                 '🎁 Christmas connection: Also means wrapping presents!',
-        image: null 
+        message: '🎁 Day 6: "Wrap up"\n\n',
+        image: 'https://ibb.co/WNBqrc6n',
+      question: 'What projects do you need to wrap up before the holidays?'
     },
     7: { 
         message: '🔔 Day 7: "Ring in the new year"\n\n' +
@@ -777,6 +775,7 @@ cron.schedule('0 10 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
