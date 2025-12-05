@@ -177,11 +177,9 @@ const ADVENT_CONTENT = {
       question: 'What projects do you need to wrap up before the holidays?'
     },
     7: { 
-        message: '🔔 Day 7: "Ring in the new year"\n\n' +
-                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
-                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
-                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
-        image: null 
+        message: '🎵 Day 7: "Spread Christmas cheer"\n\n',
+        image: 'https://ibb.co/PZZgrMTv',
+      question: 'How do you spread Christmas cheer?'
     },
     8: { 
         message: '☃️ Day 8: "A snowball\'s chance in hell"\n\n' +
@@ -198,10 +196,10 @@ const ADVENT_CONTENT = {
         image: null 
     },
     10: { 
-        message: '🎵 Day 10: "Spread Christmas cheer"\n\n' +
-                 '📖 Meaning: To make others happy and joyful during the holiday season.\n\n' +
-                 '💬 Example: "We sang carols at the nursing home to spread Christmas cheer."\n\n' +
-                 '🎄 Christmas connection: From the movie "Elf" - a classic Christmas phrase!',
+        message: '🔔 Day 10: "Ring in the new year"\n\n' +
+                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
+                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
+                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
         image: null 
     },
     11: { 
@@ -775,6 +773,7 @@ cron.schedule('0 11 * * *', async () => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
