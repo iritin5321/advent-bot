@@ -494,6 +494,9 @@ bot.action(/.*/, async (ctx) => {
     const userId = ctx.from.id;
     const callbackData = ctx.callbackQuery.data;
 
+    // ANSWER IMMEDIATELY to prevent timeout errors
+    await ctx.answerCbQuery().catch(() => {});
+
     try {
         if (callbackData.startsWith('open_') || callbackData.startsWith('opened_')) {
             const day = parseInt(callbackData.split('_')[1]);
@@ -527,11 +530,12 @@ bot.action(/.*/, async (ctx) => {
                 saveMessageIds(userId, sentMessage.message_id, null);
             }
 
-            return ctx.answerCbQuery();
+            return;
         }
 
         if (callbackData.startsWith('locked_')) {
             const day = parseInt(callbackData.split('_')[1]);
+            // For locked days, show alert (already answered at top)
             return ctx.answerCbQuery(
                 `Day ${day} is still locked! Come back on December ${day}! 🔒`, 
                 { show_alert: true }
@@ -549,7 +553,7 @@ bot.action(/.*/, async (ctx) => {
             const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
             saveMessageIds(userId, sentMessage.message_id, null);
             
-            return ctx.answerCbQuery();
+            return;
         }
 
         if (callbackData.startsWith('view_answers_')) {
@@ -604,7 +608,8 @@ bot.action(/.*/, async (ctx) => {
         }
     } catch (err) {
         console.error('Action error:', err.message);
-        return ctx.answerCbQuery('Something went wrong. Try again!').catch(() => {});
+        // Don't send error message to user, just log it
+        // The callback was already answered, so no timeout
     }
 });
 
@@ -637,7 +642,9 @@ bot.on('text', (ctx) => {
 // Error handling
 bot.catch((err, ctx) => {
     console.error('Error occurred:', err.message);
-    if (ctx) {
+    
+    // Only send error message if it's NOT a callback query timeout
+    if (ctx && !err.message.includes('query is too old')) {
         ctx.reply('Sorry, something went wrong. Try /calendar again!').catch(() => {});
     }
 });
@@ -713,6 +720,7 @@ cron.schedule('0 10 * * *', async () => {
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 
 
