@@ -666,20 +666,11 @@ bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`).then(() => {
 });
 
 app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
+// Endpoint for external cron service to trigger reminders
 
-app.listen(PORT, () => {
-    console.log(`🌐 Server running on port ${PORT}`);
+app.get('/send-reminders', async (req, res) => {
+    console.log("📬 Reminder endpoint triggered by external cron");
     
-    // Load message IDs from Google Sheets on startup
-    loadMessageIdsFromSheet().then(() => {
-        console.log('🤖 Bot ready!');
-    });
-});
-
-// Daily reminders
-cron.schedule('0 10 * * *', async () => {
-    console.log("📬 Sending daily reminders...");
-
     try {
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
@@ -687,6 +678,7 @@ cron.schedule('0 10 * * *', async () => {
         });
 
         const rows = response.data.values || [];
+        let sentCount = 0;
 
         for (let i = 1; i < rows.length; i++) {
             const userId = rows[i][0];
@@ -702,21 +694,76 @@ cron.schedule('0 10 * * *', async () => {
                             inline_keyboard: [[{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]]
                         }
                     }
-                ).catch(err => null);
+                ).catch(err => {
+                    console.error(`Failed to send to ${userId}:`, err.message);
+                    return null;
+                });
                 
                 if (sentMessage) {
                     saveMessageIds(userId, sentMessage.message_id, null);
+                    sentCount++;
                 }
             }
         }
         
-        console.log("✅ Reminders sent");
+        console.log(`✅ Sent ${sentCount} reminders`);
+        res.send(`Reminders sent: ${sentCount}`);
     } catch (err) {
         console.error('Reminder error:', err.message);
+        res.status(500).send('Error sending reminders');
     }
-}, {
-    timezone: 'Europe/Belgrade'
 });
+
+app.listen(PORT, () => {
+    console.log(`🌐 Server running on port ${PORT}`);
+    
+    // Load message IDs from Google Sheets on startup
+    loadMessageIdsFromSheet().then(() => {
+        console.log('🤖 Bot ready!');
+    });
+});
+
+// Daily reminders
+// cron.schedule('0 10 * * *', async () => {
+  //  console.log("📬 Sending daily reminders...");
+
+    //try {
+      //  const response = await sheets.spreadsheets.values.get({
+        //    spreadsheetId: SPREADSHEET_ID,
+          //  range: 'Users!A:A'
+        // });
+
+       // const rows = response.data.values || [];
+
+       // for (let i = 1; i < rows.length; i++) {
+        //    const userId = rows[i][0];
+            
+          //  if (userId) {
+            //    await deleteOldMessages({ telegram: bot.telegram }, userId);
+                
+              //  const sentMessage = await bot.telegram.sendMessage(
+                //    userId,
+                  //  "🎁 A new Advent box is open!\nTap below to see your calendar:",
+                   // {
+                     //   reply_markup: {
+                       //     inline_keyboard: [[{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]]
+                       // }
+                   // }
+             //   ).catch(err => null);
+                
+               // if (sentMessage) {
+                 //   saveMessageIds(userId, sentMessage.message_id, null);
+               // }
+           // }
+       // }
+        
+       // console.log("✅ Reminders sent");
+   // } catch (err) {
+     //   console.error('Reminder error:', err.message);
+  //  }
+//}, {
+  //  timezone: 'Europe/Belgrade'
+//});
 
 // process.once('SIGINT', () => bot.stop('SIGINT'));
 // process.once('SIGTERM', () => bot.stop('SIGTERM'));
@@ -730,6 +777,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
