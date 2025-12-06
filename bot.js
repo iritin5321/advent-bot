@@ -718,8 +718,18 @@ cron.schedule('0 10 * * *', async () => {
     timezone: 'Europe/Belgrade'
 });
 
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+// process.once('SIGINT', () => bot.stop('SIGINT'));
+// process.once('SIGTERM', () => bot.stop('SIGTERM'));
+// Graceful stop for webhooks (no bot.stop() needed)
+process.once('SIGINT', () => {
+    console.log('Received SIGINT, shutting down gracefully...');
+    process.exit(0);
+});
+
+process.once('SIGTERM', () => {
+    console.log('Received SIGTERM, shutting down gracefully...');
+    process.exit(0);
+});
 
 
 
