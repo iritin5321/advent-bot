@@ -21,6 +21,10 @@ const bot = new Telegraf(BOT_TOKEN);
 // In-memory cache for message IDs (fast access)
 const messageCache = {};
 
+// Add this at the top of your file, after the bot setup
+let lastReminderTime = 0;
+const REMINDER_COOLDOWN = 60000; // 1 minute cooldown
+
 // Google Sheets functions (run in background, non-blocking)
 async function saveUserToSheet(userId, firstName) {
     try {
@@ -62,40 +66,66 @@ async function saveAnswerToSheet(day, userName, answer) {
 }
 
 // Save message IDs to Google Sheets (background operation)
-async function saveMessageIdsToSheet(userId, calendarMessageId, imageMessageId) {
+// Replace the saveMessageIdsToSheet function with this optimized version
+async function saveMessageIdsBatch(updates) {
+    if (updates.length === 0) return;
+    
     try {
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: 'MessageIds!A:A'
+            range: 'MessageIds!A:C'
         });
 
-        const existingIds = (response.data.values || []).flat();
-        const rowIndex = existingIds.indexOf(userId.toString());
+        const existingRows = response.data.values || [];
+        const existingIds = existingRows.map(row => row[0]);
+        const newRows = [];
+        const updateRequests = [];
 
-        if (rowIndex >= 0) {
-            await sheets.spreadsheets.values.update({
-                spreadsheetId: SPREADSHEET_ID,
-                range: `MessageIds!A${rowIndex + 1}:C${rowIndex + 1}`,
-                valueInputOption: 'RAW',
-                requestBody: {
+        // Prepare batch updates
+        for (const update of updates) {
+            const { userId, calendarMessageId, imageMessageId } = update;
+            const rowIndex = existingIds.indexOf(userId.toString());
+
+            if (rowIndex >= 0) {
+                // Update existing row
+                updateRequests.push({
+                    range: `MessageIds!A${rowIndex + 1}:C${rowIndex + 1}`,
                     values: [[userId, calendarMessageId || '', imageMessageId || '']]
+                });
+            } else {
+                // New row
+                newRows.push([userId, calendarMessageId || '', imageMessageId || '']);
+            }
+        }
+
+        // Batch update existing rows
+        if (updateRequests.length > 0) {
+            await sheets.spreadsheets.values.batchUpdate({
+                spreadsheetId: SPREADSHEET_ID,
+                requestBody: {
+                    valueInputOption: 'RAW',
+                    data: updateRequests
                 }
             });
-        } else {
+        }
+
+        // Batch append new rows
+        if (newRows.length > 0) {
             await sheets.spreadsheets.values.append({
                 spreadsheetId: SPREADSHEET_ID,
                 range: 'MessageIds',
                 valueInputOption: 'RAW',
                 requestBody: {
-                    values: [[userId, calendarMessageId || '', imageMessageId || '']]
+                    values: newRows
                 }
             });
         }
+
+        console.log(`✅ Batch saved ${updates.length} message IDs (${updateRequests.length} updates, ${newRows.length} new)`);
     } catch (err) {
-        console.error('Error saving message IDs:', err.message);
+        console.error('Error batch saving message IDs:', err.message);
     }
 }
-
 // Load message IDs from Google Sheets on startup
 async function loadMessageIdsFromSheet() {
     try {
@@ -669,23 +699,61 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 // Endpoint for external cron service to trigger reminders
 
 app.get('/send-reminders', async (req, res) => {
-    console.log("📬 Reminder endpoint triggered by external cron");
+   const now = Date.now();
+    
+    // Prevent multiple triggers within 1 minute
+    if (now - lastReminderTime < REMINDER_COOLDOWN) {
+        const waitTime = Math.ceil((REMINDER_COOLDOWN - (now - lastReminderTime)) / 1000);
+        const msg = `⚠️ Reminder already sent recently. Wait ${waitTime} seconds.`;
+        console.log(msg);
+        return res.send(msg);
+    }
+    
+    lastReminderTime = now;
+     
+  console.log("=== 📬 REMINDER ENDPOINT TRIGGERED ===");
+    console.log("Time:", new Date().toLocaleString());
+    
+    let sentCount = 0;
+    let failedCount = 0;
+    const failedUsers = [];
+    const messageIdUpdates = []; // Collect updates for batch save
     
     try {
+        console.log("Fetching users from Google Sheets...");
+        
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
             range: 'Users!A:A'
         });
 
         const rows = response.data.values || [];
-        let sentCount = 0;
+        console.log(`Found ${rows.length - 1} users (${rows.length} rows including header)`);
+        
+        if (rows.length <= 1) {
+            const msg = "No users found in sheet";
+            console.log(msg);
+            return res.send(msg);
+        }
 
+        // Process each user
         for (let i = 1; i < rows.length; i++) {
             const userId = rows[i][0];
             
-            if (userId) {
-                await deleteOldMessages({ telegram: bot.telegram }, userId);
+            if (!userId || !userId.toString().match(/^\d+$/)) {
+                console.log(`⚠️ Skipping invalid user ID at row ${i + 1}: "${userId}"`);
+                continue;
+            }
+            
+            try {
+                console.log(`Processing user ${i}/${rows.length - 1}: ${userId}`);
                 
+                // Delete old messages (non-blocking)
+                await deleteOldMessages({ telegram: bot.telegram }, userId).catch(err => {
+                    console.log(`  ⚠️ Could not delete old messages: ${err.message}`);
+                });
+                
+                // Send reminder
                 const sentMessage = await bot.telegram.sendMessage(
                     userId,
                     "🎁 A new Advent box is open!\nTap below to see your calendar:",
@@ -694,24 +762,63 @@ app.get('/send-reminders', async (req, res) => {
                             inline_keyboard: [[{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]]
                         }
                     }
-                ).catch(err => {
-                    console.error(`Failed to send to ${userId}:`, err.message);
-                    return null;
+                );
+                
+                console.log(`  ✅ Sent to ${userId}`);
+                
+                // Collect for batch save (in-memory)
+                messageCache[userId] = {
+                    calendar: sentMessage.message_id,
+                    image: null
+                };
+                messageIdUpdates.push({
+                    userId: userId,
+                    calendarMessageId: sentMessage.message_id,
+                    imageMessageId: null
                 });
                 
-                if (sentMessage) {
-                    saveMessageIds(userId, sentMessage.message_id, null);
-                    sentCount++;
-                }
+                sentCount++;
+                
+            } catch (userErr) {
+                console.error(`  ❌ Failed to send to ${userId}: ${userErr.message}`);
+                failedUsers.push({ 
+                    userId, 
+                    error: userErr.message,
+                    row: i + 1
+                });
+                failedCount++;
             }
+            
+            // Small delay to avoid Telegram rate limits
+            await new Promise(resolve => setTimeout(resolve, 100));
         }
         
-        console.log(`✅ Sent ${sentCount} reminders`);
-        res.send(`Reminders sent: ${sentCount}`);
+        // Batch save all message IDs at once (1-2 API calls instead of 18+)
+        if (messageIdUpdates.length > 0) {
+            console.log(`Batch saving ${messageIdUpdates.length} message IDs...`);
+            await saveMessageIdsBatch(messageIdUpdates);
+        }
+        
     } catch (err) {
-        console.error('Reminder error:', err.message);
-        res.status(500).send('Error sending reminders');
+        console.error('❌ FATAL ERROR:', err.message);
+        
+        const partialMsg = `Partial: ${sentCount} sent, ${failedCount} failed. Error: ${err.message}`;
+        return res.status(500).send(partialMsg);
     }
+    
+    const message = `✅ Complete: ${sentCount} sent | ${failedCount} failed`;
+    console.log("=== REMINDER SUMMARY ===");
+    console.log(message);
+    
+    if (failedUsers.length > 0) {
+        console.log("Failed users:");
+        failedUsers.forEach(f => {
+            console.log(`  Row ${f.row}, User ${f.userId}: ${f.error}`);
+        });
+    }
+    console.log("========================");
+    
+    res.send(message + (failedUsers.length > 0 ? '\n\nFailed:\n' + JSON.stringify(failedUsers, null, 2) : ''));
 });
 
 app.listen(PORT, () => {
@@ -777,6 +884,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
