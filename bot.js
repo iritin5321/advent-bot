@@ -224,11 +224,9 @@ const ADVENT_CONTENT = {
       question: 'How do you spread Christmas cheer?'
     },
     8: { 
-        message: '☃️ Day 8: "A snowball\'s chance in hell"\n\n' +
-                 '📖 Meaning: No chance at all, impossible.\n\n' +
-                 '💬 Example: "He has a snowball\'s chance in hell of finishing all that work by tomorrow."\n\n' +
-                 '❄️ Winter connection: A snowball would melt instantly in hell!',
-        image: null 
+        message: '🎿 Day 8: "On thin ice"\n\n',
+        image: 'https://ibb.co/8nhfrXGm',
+      question: 'When did you last feel like you were walking on thin ice? What happened?'
     },
     9: { 
         message: '🍪 Day 9: "Bundle up"\n\n' +
@@ -252,10 +250,10 @@ const ADVENT_CONTENT = {
         image: null 
     },
     12: { 
-        message: '🎿 Day 12: "On thin ice"\n\n' +
-                 '📖 Meaning: In a risky or dangerous situation.\n\n' +
-                 '💬 Example: "You\'re on thin ice with the boss after being late three times this week."\n\n' +
-                 '❄️ Winter connection: Thin ice on a lake can break - dangerous!',
+        message: '☃️ Day 8: "A snowball\'s chance in hell"\n\n' +
+                 '📖 Meaning: No chance at all, impossible.\n\n' +
+                 '💬 Example: "He has a snowball\'s chance in hell of finishing all that work by tomorrow."\n\n' +
+                 '❄️ Winter connection: A snowball would melt instantly in hell!'
         image: null 
     },
     13: { 
@@ -884,6 +882,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
