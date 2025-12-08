@@ -159,9 +159,9 @@ function saveMessageIds(userId, calendarMessageId, imageMessageId) {
     };
     
     // Save to Google Sheets in background (don't wait)
-    saveMessageIdsToSheet(userId, calendarMessageId, imageMessageId).catch(err => {
-        console.error('Background save failed:', err.message);
-    });
+  //  saveMessageIdsToSheet(userId, calendarMessageId, imageMessageId).catch(err => {
+  //      console.error('Background save failed:', err.message);
+  //  });
 }
 
 function getMessageIds(userId) {
@@ -936,6 +936,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
