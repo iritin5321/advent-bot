@@ -251,7 +251,7 @@ const ADVENT_CONTENT = {
         message: '☃️ Day 8: "A snowball\'s chance in hell"\n\n' +
                  '📖 Meaning: No chance at all, impossible.\n\n' +
                  '💬 Example: "He has a snowball\'s chance in hell of finishing all that work by tomorrow."\n\n' +
-                 '❄️ Winter connection: A snowball would melt instantly in hell!'
+                 '❄️ Winter connection: A snowball would melt instantly in hell!',
         image: null 
     },
     13: { 
@@ -936,6 +936,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
