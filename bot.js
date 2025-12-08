@@ -576,7 +576,6 @@ bot.action(/.*/, async (ctx) => {
     const userId = ctx.from.id;
     const callbackData = ctx.callbackQuery.data;
 
-    // ANSWER IMMEDIATELY to prevent timeout errors
     await ctx.answerCbQuery().catch(() => {});
 
     try {
@@ -602,7 +601,11 @@ bot.action(/.*/, async (ctx) => {
                 [Markup.button.callback('« Back to Calendar', 'back_to_calendar')]
             ]);
 
-            await deleteOldMessages(ctx, userId);
+            // Delete current message (the calendar)
+            await ctx.deleteMessage().catch(() => {});
+            
+            // Delete any other old messages
+            await deleteOldMessages(ctx, userId).catch(() => {});
 
             if (content.image) {
                 const sentMessage = await ctx.replyWithPhoto(content.image, { caption, ...keyboard });
@@ -617,7 +620,6 @@ bot.action(/.*/, async (ctx) => {
 
         if (callbackData.startsWith('locked_')) {
             const day = parseInt(callbackData.split('_')[1]);
-            // For locked days, show alert (already answered at top)
             return ctx.answerCbQuery(
                 `Day ${day} is still locked! Come back on December ${day}! 🔒`, 
                 { show_alert: true }
@@ -631,7 +633,12 @@ bot.action(/.*/, async (ctx) => {
                 '✓ = Already opened\n' +
                 '🔒 = Coming soon';
 
-            await deleteOldMessages(ctx, userId);
+            // Delete current message (the content)
+            await ctx.deleteMessage().catch(() => {});
+            
+            // Delete any other old messages
+            await deleteOldMessages(ctx, userId).catch(() => {});
+
             const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
             saveMessageIds(userId, sentMessage.message_id, null);
             
@@ -690,8 +697,6 @@ bot.action(/.*/, async (ctx) => {
         }
     } catch (err) {
         console.error('Action error:', err.message);
-        // Don't send error message to user, just log it
-        // The callback was already answered, so no timeout
     }
 });
 
@@ -931,6 +936,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
