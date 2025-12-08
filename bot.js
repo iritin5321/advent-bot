@@ -186,7 +186,7 @@ function isTeacher(userId) {
     return TEACHER_IDS.includes(userId);
 }
 
-// Advent calendar content for each day (December 1-24)
+// Advent calendar content for each day (December 1-31)
 const ADVENT_CONTENT = {
     1: { 
         message: '🎄 Day 1: "Break the ice"\n\n',
@@ -229,11 +229,9 @@ const ADVENT_CONTENT = {
       question: 'When did you last feel like you were walking on thin ice? What happened?'
     },
     9: { 
-        message: '🍪 Day 9: "Bundle up"\n\n' +
-                 '📖 Meaning: To dress in warm clothes.\n\n' +
-                 '💬 Example: "It\'s -10°C outside! You need to bundle up before going out."\n\n' +
-                 '❄️ Winter connection: Essential winter advice!',
-        image: null 
+        message: '🍪 Day 9: "Bundle up"\n\n',
+        image: 'https://ibb.co/vChffbqh',
+      question: 'What\'s your favorite way to bundle up and stay warm in winter?'
     },
     10: { 
         message: '🔔 Day 10: "Ring in the new year"\n\n' +
@@ -341,6 +339,62 @@ const ADVENT_CONTENT = {
                  '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
         image: null 
     },
+    25: { 
+        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
+                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
+                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
+                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
+        image: null 
+    },
+    26 { 
+        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
+                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
+                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
+                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
+        image: null 
+    },
+    27: { 
+        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
+                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
+                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
+                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
+        image: null 
+    },
+    28: { 
+        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
+                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
+                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
+                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
+        image: null 
+    },
+    29: { 
+        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
+                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
+                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
+                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
+        image: null 
+    },
+    30: { 
+        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
+                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
+                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
+                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
+        image: null 
+    },
+    31: { 
+        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
+                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
+                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
+                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
+        image: null 
+    },
 };
 
 // User data storage
@@ -393,7 +447,7 @@ function createCalendarKeyboard(userId) {
     const keyboard = [];
     let row = [];
     
-    for (let day = 1; day <= 24; day++) {
+    for (let day = 1; day <= 31; day++) {
         let buttonText, callbackData;
         
         if (userOpened.includes(day)) {
@@ -444,7 +498,7 @@ bot.command('start', async (ctx) => {
   
     const welcomeMessage = 
         `🎄 Welcome to the Advent Calendar, ${firstName}! 🎄\n\n` +
-        'Open a new door each day from December 1st to 24th!\n' +
+        'Open a new door each day from December 1st to 31th!\n' +
         'Each day reveals a special surprise! 🎁\n\n' +
         'Click on a gift box to open today\'s door!';
 
@@ -476,8 +530,8 @@ bot.command('progress', (ctx) => {
     
     let progressText = 
         '📊 Your Progress:\n\n' +
-        `Opened: ${openedDays.length}/24 days\n` +
-        `Available: ${Math.min(currentDay, 24)} days\n\n`;
+        `Opened: ${openedDays.length}/31 days\n` +
+        `Available: ${Math.min(currentDay, 31)} days\n\n`;
     
     if (openedDays.length > 0) {
         progressText += 'Days you\'ve opened: ' + openedDays.sort((a, b) => a - b).join(', ');
@@ -498,7 +552,7 @@ bot.command('answers', (ctx) => {
     const keyboard = [];
     let row = [];
     
-    for (let day = 1; day <= 24; day++) {
+    for (let day = 1; day <= 31; day++) {
         row.push(Markup.button.callback(`Day ${day}`, `view_answers_${day}`));
         
         if (row.length === 6) {
@@ -615,7 +669,7 @@ bot.action(/.*/, async (ctx) => {
             const keyboard = [];
             let row = [];
             
-            for (let day = 1; day <= 24; day++) {
+            for (let day = 1; day <= 31; day++) {
                 row.push(Markup.button.callback(`Day ${day}`, `view_answers_${day}`));
                 
                 if (row.length === 6) {
@@ -882,6 +936,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
