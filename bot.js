@@ -858,19 +858,14 @@ app.get('/send-reminders', async (req, res) => {
         return res.status(500).send(partialMsg);
     }
     
-    const message = `✅ Complete: ${sentCount} sent | ${failedCount} failed`;
-    console.log("=== REMINDER SUMMARY ===");
-    console.log(message);
+    const message = `OK: ${sentCount} sent | ${failedCount} failed`;
+   console.log(`Full summary: Sent: ${sentCount}, Failed: ${failedCount}`);
     
     if (failedUsers.length > 0) {
-        console.log("Failed users:");
-        failedUsers.forEach(f => {
-            console.log(`  Row ${f.row}, User ${f.userId}: ${f.error}`);
-        });
+        console.log("Failed users:", failedUsers);
     }
-    console.log("========================");
-    
-    res.send(message + (failedUsers.length > 0 ? '\n\nFailed:\n' + JSON.stringify(failedUsers, null, 2) : ''));
+       
+    res.send(msg);
 });
 
 app.listen(PORT, () => {
@@ -936,6 +931,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
