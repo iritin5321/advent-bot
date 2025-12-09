@@ -234,16 +234,14 @@ const ADVENT_CONTENT = {
       question: 'What\'s your favorite way to bundle up and stay warm in winter?'
     },
     10: { 
-        message: '☃️ Day 8: "A snowball\'s chance in hell"\n\n',
+        message: '☃️ Day 10: "A snowball\'s chance in hell"\n\n',
         image: 'https://ibb.co/wrZjNnCq',
       question: 'What do you have a snowball\'s chance of doing before the New Year?' 
     },
     11: { 
-        message: '🌟 Day 11: "Left out in the cold"\n\n' +
-                 '📖 Meaning: To be excluded or ignored.\n\n' +
-                 '💬 Example: "I felt left out in the cold when they didn\'t invite me to the party."\n\n' +
-                 '❄️ Winter connection: Like being left outside in freezing weather!',
-        image: null 
+        message: '🎨 Day 11: "Deck the halls"\n\n',
+        image: 'https://ibb.co/mVW8cvF0',
+      question: 'Have you decked the halls yet?'
     },
     12: { 
         message: '🔔 Day 10: "Ring in the new year"\n\n' +
@@ -267,10 +265,10 @@ const ADVENT_CONTENT = {
         image: null 
     },
     15: { 
-        message: '🎨 Day 15: "Deck the halls"\n\n' +
-                 '📖 Meaning: To decorate for Christmas.\n\n' +
-                 '💬 Example: "It\'s time to deck the halls with lights and tinsel!"\n\n' +
-                 '🎄 Christmas connection: From the famous carol "Deck the Halls"!',
+        message: '🌟 Day 11: "Left out in the cold"\n\n' +
+                 '📖 Meaning: To be excluded or ignored.\n\n' +
+                 '💬 Example: "I felt left out in the cold when they didn\'t invite me to the party."\n\n' +
+                 '❄️ Winter connection: Like being left outside in freezing weather!',
         image: null 
     },
     16: { 
@@ -934,6 +932,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
