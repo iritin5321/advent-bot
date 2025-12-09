@@ -441,7 +441,7 @@ function saveOpenedDay(userId, day) {
 
 function createCalendarKeyboard(userId) {
     const now = new Date();
-    const currentDay = now.getMonth() === 11 ? now.getDate() : 25;
+    const currentDay = now.getMonth() === 11 ? now.getDate() : 0;
     const userOpened = loadUserData(userId).openedDays;
     
     const keyboard = [];
@@ -936,6 +936,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
