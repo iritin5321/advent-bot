@@ -265,7 +265,7 @@ const ADVENT_CONTENT = {
         image: null 
     },
     15: { 
-        message: '🌟 Day 11: "Left out in the cold"\n\n' +
+        message: '🌟 Day 11: "Left out in the cold."\n\n' +
                  '📖 Meaning: To be excluded or ignored.\n\n' +
                  '💬 Example: "I felt left out in the cold when they didn\'t invite me to the party."\n\n' +
                  '❄️ Winter connection: Like being left outside in freezing weather!',
@@ -932,6 +932,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
