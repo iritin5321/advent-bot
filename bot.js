@@ -843,7 +843,7 @@ app.get('/send-reminders', async (req, res) => {
             }
             
             // Small delay to avoid Telegram rate limits
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
         
         // Batch save all message IDs at once (1-2 API calls instead of 18+)
@@ -932,6 +932,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
