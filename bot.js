@@ -234,11 +234,9 @@ const ADVENT_CONTENT = {
       question: 'What\'s your favorite way to bundle up and stay warm in winter?'
     },
     10: { 
-        message: '🔔 Day 10: "Ring in the new year"\n\n' +
-                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
-                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
-                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
-        image: null 
+        message: '☃️ Day 8: "A snowball\'s chance in hell"\n\n',
+        image: 'https://ibb.co/wrZjNnCq',
+      question: 'What do you have a snowball\'s chance of doing before the New Year?' 
     },
     11: { 
         message: '🌟 Day 11: "Left out in the cold"\n\n' +
@@ -248,10 +246,10 @@ const ADVENT_CONTENT = {
         image: null 
     },
     12: { 
-        message: '☃️ Day 8: "A snowball\'s chance in hell"\n\n' +
-                 '📖 Meaning: No chance at all, impossible.\n\n' +
-                 '💬 Example: "He has a snowball\'s chance in hell of finishing all that work by tomorrow."\n\n' +
-                 '❄️ Winter connection: A snowball would melt instantly in hell!',
+        message: '🔔 Day 10: "Ring in the new year"\n\n' +
+                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
+                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
+                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
         image: null 
     },
     13: { 
@@ -936,6 +934,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
