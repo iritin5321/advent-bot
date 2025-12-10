@@ -258,7 +258,7 @@ const ADVENT_CONTENT = {
         image: null 
     },
     14: { 
-        message: '🧦 Day 14: "Under the weather"\n\n' +
+        message: '🧦 Day 14: "Under the weather!"\n\n' +
                  '📖 Meaning: Feeling ill or sick.\n\n' +
                  '💬 Example: "I can\'t come to the party tonight, I\'m feeling a bit under the weather."\n\n' +
                  '❄️ Winter connection: Cold weather often brings colds and flu!',
@@ -932,6 +932,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
