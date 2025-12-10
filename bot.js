@@ -236,7 +236,7 @@ const ADVENT_CONTENT = {
     10: { 
         message: '☃️ Day 10: "A snowball\'s chance in hell"\n\n',
         image: 'https://ibb.co/wrZjNnCq',
-      question: 'What do you have a snowball\'s chance of doing before the New Year?' 
+      question: 'What do you have a snowball\'s chance in hell of doing before the New Year?' 
     },
     11: { 
         message: '🎨 Day 11: "Deck the halls"\n\n',
@@ -932,6 +932,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
