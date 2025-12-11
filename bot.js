@@ -244,11 +244,9 @@ const ADVENT_CONTENT = {
       question: 'Have you decked the halls yet?'
     },
     12: { 
-        message: '🔔 Day 10: "Ring in the new year"\n\n' +
-                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
-                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
-                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
-        image: null 
+        message:  '🧦 Day 12: "Under the weather"\n\n',
+        image: 'https://ibb.co/JLfV9Qt',
+      question: 'What do you do when you\'re under the weather?'
     },
     13: { 
         message: '🦌 Day 13: "A white Christmas"\n\n' +
@@ -258,10 +256,10 @@ const ADVENT_CONTENT = {
         image: null 
     },
     14: { 
-        message: '🧦 Day 14: "Under the weather"\n\n' +
-                 '📖 Meaning: Feeling ill or sick.\n\n' +
-                 '💬 Example: "I can\'t come to the party tonight, I\'m feeling a bit under the weather."\n\n' +
-                 '❄️ Winter connection: Cold weather often brings colds and flu!',
+        message: '🔔 Day 10: "Ring in the new year"\n\n' +
+                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
+                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
+                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
         image: null 
     },
     15: { 
@@ -932,6 +930,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
