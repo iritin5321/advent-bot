@@ -1,7 +1,7 @@
 const { Telegraf, Markup } = require('telegraf');
 const express = require('express');
 const { google } = require('googleapis');
-const cron = require('node-cron');
+// const cron = require('node-cron');
 
 // Google Sheets setup
 const credentials = JSON.parse(process.env.SERVICE_ACCOUNT_JSON);
@@ -751,7 +751,7 @@ bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`).then(() => {
 app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 // Endpoint for external cron service to trigger reminders
 
-app.get('/send-reminders', async (req, res) => {
+ app.get('/send-reminders', async (req, res) => {
    const now = Date.now();
     
     // Prevent multiple triggers within 1 minute
@@ -932,6 +932,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
