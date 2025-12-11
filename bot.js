@@ -866,7 +866,7 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
         console.log("Failed users:", failedUsers);
     }
        
-    res.send(msg);
+    res.send(message);
 });
 
 app.listen(PORT, () => {
@@ -932,6 +932,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
