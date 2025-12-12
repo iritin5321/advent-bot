@@ -897,10 +897,11 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 
 app.listen(PORT, () => {
     console.log(`🌐 Server running on port ${PORT}`);
+    console.log('🤖 Bot ready!');
     
-    // Load message IDs from Google Sheets on startup
-    loadMessageIdsFromSheet().then(() => {
-        console.log('🤖 Bot ready!');
+    // Load cache in background (non-blocking)
+    loadMessageIdsFromSheet().catch(err => {
+        console.error('Cache load failed:', err.message);
     });
 });
 
@@ -958,6 +959,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
