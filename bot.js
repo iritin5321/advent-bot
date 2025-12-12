@@ -278,11 +278,9 @@ const ADVENT_CONTENT = {
       question: 'What do you do when you\'re under the weather?'
     },
     13: { 
-        message: '🦌 Day 13: "A white Christmas"\n\n' +
-                 '📖 Meaning: Christmas Day when there is snow on the ground.\n\n' +
-                 '💬 Example: "I\'m dreaming of a white Christmas, just like the ones I used to know."\n\n' +
-                 '🎄 Christmas connection: From the famous Bing Crosby song!',
-        image: null 
+        message: '🍫 Day 13: "Warm the cockles of your heart"\n\n',
+        image: 'https://ibb.co/d4KwkbKc',
+      question: 'What warms the cockles of your heart?'
     },
     14: { 
         message: '🔔 Day 10: "Ring in the new year"\n\n' +
@@ -320,10 +318,10 @@ const ADVENT_CONTENT = {
         image: null 
     },
     19: { 
-        message: '🍫 Day 19: "Warm the cockles of your heart"\n\n' +
-                 '📖 Meaning: To make you feel happy and content.\n\n' +
-                 '💬 Example: "Seeing the children open their presents really warmed the cockles of my heart."\n\n' +
-                 '❄️ Winter connection: Perfect for describing that cozy, warm Christmas feeling!',
+        message: '🦌 Day 13: "A white Christmas"\n\n' +
+                 '📖 Meaning: Christmas Day when there is snow on the ground.\n\n' +
+                 '💬 Example: "I\'m dreaming of a white Christmas, just like the ones I used to know."\n\n' +
+                 '🎄 Christmas connection: From the famous Bing Crosby song!',
         image: null 
     },
     20: { 
@@ -959,6 +957,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
