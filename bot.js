@@ -169,13 +169,42 @@ function getMessageIds(userId) {
 }
 
 async function deleteOldMessages(ctx, userId) {
-    const messageIds = getMessageIds(userId);
+    // First try cache (fast)
+    let messageIds = messageCache[userId];
     
-    if (messageIds.calendar) {
-        await ctx.telegram.deleteMessage(userId, messageIds.calendar).catch(() => {});
+    // If not in cache, try quick Google Sheets lookup
+    if (!messageIds || (!messageIds.calendar && !messageIds.image)) {
+        try {
+            const response = await sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: 'MessageIds!A:C',
+                timeout: 3000 // 3 second timeout
+            });
+
+            const rows = response.data.values || [];
+            for (let row of rows) {
+                if (row[0] === userId.toString()) {
+                    messageIds = {
+                        calendar: row[1] ? parseInt(row[1]) : null,
+                        image: row[2] ? parseInt(row[2]) : null
+                    };
+                    messageCache[userId] = messageIds; // Cache it
+                    break;
+                }
+            }
+        } catch (err) {
+            console.log(`Quick sheet lookup failed: ${err.message}`);
+        }
     }
-    if (messageIds.image) {
-        await ctx.telegram.deleteMessage(userId, messageIds.image).catch(() => {});
+    
+    // Delete messages if we have IDs
+    if (messageIds) {
+        if (messageIds.calendar) {
+            await ctx.telegram.deleteMessage(userId, messageIds.calendar).catch(() => {});
+        }
+        if (messageIds.image) {
+            await ctx.telegram.deleteMessage(userId, messageIds.image).catch(() => {});
+        }
     }
 }
 
@@ -573,7 +602,14 @@ bot.action(/.*/, async (ctx) => {
     await ctx.answerCbQuery().catch(() => {});
 
     try {
-        if (callbackData.startsWith('open_') || callbackData.startsWith('opened_')) {
+       if (callbackData.startsWith('locked_')) {
+            const day = parseInt(callbackData.split('_')[1]);
+            return ctx.answerCbQuery(
+                `Day ${day} is still locked! Come back on December ${day}! 🔒`, 
+                { show_alert: true }
+            );
+        }  
+      if (callbackData.startsWith('open_') || callbackData.startsWith('opened_')) {
             const day = parseInt(callbackData.split('_')[1]);
             saveOpenedDay(userId, day);
 
@@ -599,7 +635,7 @@ bot.action(/.*/, async (ctx) => {
             await ctx.deleteMessage().catch(() => {});
             
             // Delete any other old messages
-            await deleteOldMessages(ctx, userId).catch(() => {});
+            deleteOldMessages(ctx, userId).catch(() => {});
 
             if (content.image) {
                 const sentMessage = await ctx.replyWithPhoto(content.image, { caption, ...keyboard });
@@ -610,14 +646,6 @@ bot.action(/.*/, async (ctx) => {
             }
 
             return;
-        }
-
-        if (callbackData.startsWith('locked_')) {
-            const day = parseInt(callbackData.split('_')[1]);
-            return ctx.answerCbQuery(
-                `Day ${day} is still locked! Come back on December ${day}! 🔒`, 
-                { show_alert: true }
-            );
         }
 
         if (callbackData === 'back_to_calendar' || callbackData === 'OPEN_CALENDAR') {
@@ -631,7 +659,7 @@ bot.action(/.*/, async (ctx) => {
             await ctx.deleteMessage().catch(() => {});
             
             // Delete any other old messages
-            await deleteOldMessages(ctx, userId).catch(() => {});
+            deleteOldMessages(ctx, userId).catch(() => {});
 
             const sentMessage = await ctx.reply(message, createCalendarKeyboard(userId));
             saveMessageIds(userId, sentMessage.message_id, null);
@@ -930,6 +958,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
