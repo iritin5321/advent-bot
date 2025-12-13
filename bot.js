@@ -283,11 +283,9 @@ const ADVENT_CONTENT = {
       question: 'What warms the cockles of your heart?'
     },
     14: { 
-        message: '🔔 Day 10: "Ring in the new year"\n\n' +
-                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
-                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
-                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
-        image: null 
+        message: '🦌 Day 14: "A white Christmas"\n\n',
+        image: 'https://ibb.co/V0Crzkh4',
+      question: 'Why do many people wish for a white Christmas? What is so special about it?'
     },
     15: { 
         message: '🌟 Day 11: "Left out in the cold."\n\n' +
@@ -318,10 +316,10 @@ const ADVENT_CONTENT = {
         image: null 
     },
     19: { 
-        message: '🦌 Day 13: "A white Christmas"\n\n' +
-                 '📖 Meaning: Christmas Day when there is snow on the ground.\n\n' +
-                 '💬 Example: "I\'m dreaming of a white Christmas, just like the ones I used to know."\n\n' +
-                 '🎄 Christmas connection: From the famous Bing Crosby song!',
+        message:  '🔔 Day 10: "Ring in the new year"\n\n' +
+                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
+                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
+                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
         image: null 
     },
     20: { 
@@ -957,6 +955,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
