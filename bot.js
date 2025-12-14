@@ -284,7 +284,7 @@ const ADVENT_CONTENT = {
     },
     14: { 
         message: '🦌 Day 14: "A white Christmas"\n\n',
-        image: 'https://ibb.co/V0Crzkh4',
+        image: 'https://ibb.co/XrH0ty4d',
       question: 'Why do many people wish for a white Christmas? What is so special about it?'
     },
     15: { 
@@ -955,6 +955,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
