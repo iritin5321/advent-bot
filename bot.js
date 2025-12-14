@@ -289,7 +289,7 @@ const ADVENT_CONTENT = {
     },
     15: { 
         message: '🌟 Day 15: "Left out in the cold."\n\n',
-        image: 'https://ibb.co/fYYYHhD7',
+        image: 'https://ibb.co/GZDDkHB',
       question: 'Have you ever felt left out in the cold? What happened?'
     },
     16: { 
@@ -953,6 +953,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
