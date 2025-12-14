@@ -288,11 +288,9 @@ const ADVENT_CONTENT = {
       question: 'Why do many people wish for a white Christmas? What is so special about it?'
     },
     15: { 
-        message: '🌟 Day 11: "Left out in the cold."\n\n' +
-                 '📖 Meaning: To be excluded or ignored.\n\n' +
-                 '💬 Example: "I felt left out in the cold when they didn\'t invite me to the party."\n\n' +
-                 '❄️ Winter connection: Like being left outside in freezing weather!',
-        image: null 
+        message: '🌟 Day 15: "Left out in the cold."\n\n',
+        image: 'https://ibb.co/fYYYHhD7',
+      question: 'Have you ever felt left out in the cold? What happened?'
     },
     16: { 
         message: '📬 Day 16: "Snug as a bug in a rug"\n\n' +
@@ -955,6 +953,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
