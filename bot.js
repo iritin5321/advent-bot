@@ -293,11 +293,9 @@ const ADVENT_CONTENT = {
       question: 'Have you ever felt left out in the cold? What happened?'
     },
     16: { 
-        message: '📬 Day 16: "Snug as a bug in a rug"\n\n' +
-                 '📖 Meaning: Very comfortable and cozy.\n\n' +
-                 '💬 Example: "I\'m sitting by the fire with hot chocolate - snug as a bug in a rug!"\n\n' +
-                 '❄️ Winter connection: Perfect for describing a cozy winter evening!',
-        image: null 
+        message: '📬 Day 16: "Snug as a bug in a rug"\n\n',
+        image: 'https://ibb.co/FLKpVXj0',
+      question: 'What makes you feel snug as a bug in a rug?'
     },
     17: { 
         message: '🌲 Day 17: "Tis the season"\n\n' +
@@ -953,6 +951,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
