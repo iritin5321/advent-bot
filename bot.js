@@ -357,7 +357,7 @@ const ADVENT_CONTENT = {
         image: null 
     },
     25: { 
-        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night"\n\n' +
                  '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
                  '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
                  '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
@@ -953,6 +953,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
