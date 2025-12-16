@@ -293,7 +293,7 @@ const ADVENT_CONTENT = {
       question: 'Have you ever felt left out in the cold? What happened?'
     },
     16: { 
-        message: '📬 Day 16: "Snug as a bug in a rug"\n\n',
+        message: '📬 Day 16: "Snug as a bug in a rug"\n',
         image: 'https://ibb.co/FLKpVXj0',
       question: 'What makes you feel snug as a bug in a rug?'
     },
@@ -951,6 +951,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
