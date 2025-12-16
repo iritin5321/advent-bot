@@ -298,11 +298,9 @@ const ADVENT_CONTENT = {
       question: 'What makes you feel snug as a bug in a rug?'
     },
     17: { 
-        message: '🌲 Day 17: "Tis the season"\n\n' +
-                 '📖 Meaning: It\'s the appropriate time of year (usually for Christmas activities).\n\n' +
-                 '💬 Example: "Let\'s go ice skating - \'tis the season!"\n\n' +
-                 '🎄 Christmas connection: From "Deck the Halls" - "\'Tis the season to be jolly"!',
-        image: null 
+        message: '🌙 Day 17: "In cold blood"\n',
+        image: 'https://ibb.co/Ngb7KwLX',
+      question: 'In what situation could you do something bad to another person in cold blood?'
     },
     18: { 
         message: '🎬 Day 18: "Freeze someone out"\n\n' +
@@ -951,6 +949,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
