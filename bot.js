@@ -303,11 +303,9 @@ const ADVENT_CONTENT = {
       question: 'In what situation could you do something bad to another person in cold blood?'
     },
     18: { 
-        message: '🎬 Day 18: "Freeze someone out"\n\n' +
-                 '📖 Meaning: To deliberately exclude someone from a group or activity.\n\n' +
-                 '💬 Example: "The team tried to freeze out the new member by not including them in discussions."\n\n' +
-                 '❄️ Winter connection: Like shutting someone out in the freezing cold!',
-        image: null 
+        message: '🎄 Day 18: "Light up like a Christmas tree"\n',
+        image: 'https://ibb.co/Qv4353Mr',
+      question: 'When was the last time you lit up like a Christmas tree? What happened?'
     },
     19: { 
         message:  '🔔 Day 10: "Ring in the new year"\n\n' +
@@ -324,10 +322,10 @@ const ADVENT_CONTENT = {
         image: null 
     },
     21: { 
-        message: '🌙 Day 21: "In cold blood"\n\n' +
-                 '📖 Meaning: Done deliberately and without emotion (usually about violence).\n\n' +
-                 '💬 Example: "The detective said the crime was committed in cold blood."\n\n' +
-                 '❄️ Winter connection: "Cold" suggests lack of warmth or emotion.',
+        message: '🎬 Day 18: "Freeze someone out"\n\n' +
+                 '📖 Meaning: To deliberately exclude someone from a group or activity.\n\n' +
+                 '💬 Example: "The team tried to freeze out the new member by not including them in discussions."\n\n' +
+                 '❄️ Winter connection: Like shutting someone out in the freezing cold!',
         image: null 
     },
     22: { 
@@ -949,6 +947,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
