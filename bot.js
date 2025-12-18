@@ -308,11 +308,9 @@ const ADVENT_CONTENT = {
       question: 'When was the last time you lit up like a Christmas tree? What happened?'
     },
     19: { 
-        message:  '🔔 Day 10: "Ring in the new year"\n\n' +
-                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
-                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
-                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
-        image: null 
+        message:  '🥶 Day 19: "Get cold feet"\n',
+        image: 'https://ibb.co/XZSjzyg7',
+      question: 'Have you ever gotten cold feet before doing something important? What happened?'
     },
     20: { 
         message: '🎪 Day 20: "Home for the holidays"\n\n' +
@@ -399,11 +397,10 @@ const ADVENT_CONTENT = {
         image: null 
     },
     31: { 
-        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
-                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
-                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
-                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
-                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
+        message: '🔔 Day 10: "Ring in the new year"\n\n' +
+                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
+                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
+                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
         image: null 
     },
 };
@@ -947,6 +944,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
