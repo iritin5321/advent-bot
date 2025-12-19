@@ -313,11 +313,9 @@ const ADVENT_CONTENT = {
       question: 'Have you ever gotten cold feet before doing something important? What happened?'
     },
     20: { 
-        message: '🎪 Day 20: "Home for the holidays"\n\n' +
-                 '📖 Meaning: Returning to your family home to celebrate Christmas.\n\n' +
-                 '💬 Example: "I\'m flying home for the holidays to spend Christmas with my parents."\n\n' +
-                 '🎄 Christmas connection: A popular Christmas song and tradition!',
-        image: null 
+        message: '🧊 Day 20: "Put something on ice"\n',
+        image: 'https://ibb.co/LXqF7msP',
+      question: 'What plans or projects have you had to put on ice recently? Will you return to them?'
     },
     21: { 
         message: '🎬 Day 18: "Freeze someone out"\n\n' +
@@ -944,6 +942,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
