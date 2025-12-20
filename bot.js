@@ -318,18 +318,16 @@ const ADVENT_CONTENT = {
       question: 'What plans or projects have you had to put on ice recently? Will you return to them?'
     },
     21: { 
+        message: '🔥 Day 21: "Warm up to someone or something"\n',
+        image: 'https://ibb.co/wFXr7P6w',
+      question: 'Is there someone or something you didn\'t like at first but eventually warmed up to?'
+    },
+    22: { 
         message: '🎬 Day 18: "Freeze someone out"\n\n' +
                  '📖 Meaning: To deliberately exclude someone from a group or activity.\n\n' +
                  '💬 Example: "The team tried to freeze out the new member by not including them in discussions."\n\n' +
                  '❄️ Winter connection: Like shutting someone out in the freezing cold!',
-        image: null 
-    },
-    22: { 
-        message: '🎺 Day 22: "Baby, it\'s cold outside"\n\n' +
-                 '📖 Meaning: A playful way to say it\'s very cold (and you should stay inside).\n\n' +
-                 '💬 Example: "Want to go for a walk?" "Baby, it\'s cold outside! Let\'s stay in!"\n\n' +
-                 '❄️ Winter connection: From a famous Christmas song!',
-        image: null 
+      image: null
     },
     23: { 
         message: '✨ Day 23: "Peace on Earth"\n\n' +
@@ -942,6 +940,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
