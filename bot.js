@@ -323,11 +323,9 @@ const ADVENT_CONTENT = {
       question: 'Is there someone or something you didn\'t like at first but eventually warmed up to?'
     },
     22: { 
-        message: '🎬 Day 18: "Freeze someone out"\n\n' +
-                 '📖 Meaning: To deliberately exclude someone from a group or activity.\n\n' +
-                 '💬 Example: "The team tried to freeze out the new member by not including them in discussions."\n\n' +
-                 '❄️ Winter connection: Like shutting someone out in the freezing cold!',
-      image: null
+        message: '🎬 Day 22: "Freeze someone out"\n',
+        image: 'https://ibb.co/cSrWPmhg',
+      question: 'Have you ever frozen someone out? If not, in what situation would you do it?'
     },
     23: { 
         message: '✨ Day 23: "Peace on Earth"\n\n' +
@@ -940,6 +938,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
