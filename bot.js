@@ -328,11 +328,9 @@ const ADVENT_CONTENT = {
       question: 'Have you ever frozen someone out? If not, in what situation would you do it?'
     },
     23: { 
-        message: '✨ Day 23: "Peace on Earth"\n\n' +
-                 '📖 Meaning: A wish for harmony and goodwill among all people.\n\n' +
-                 '💬 Example: "The choir sang songs of peace on Earth and goodwill to all."\n\n' +
-                 '🎄 Christmas connection: A central message of Christmas!',
-        image: null 
+        message: '☃️ Day 23: "To snowball"\n',
+        image: 'https://ibb.co/7x1Lqktk',
+      question: 'Can you think of a situation that snowballed in your life? How did it start and how did it end?'
     },
     24: { 
         message: '🎉 Day 24: "Merry Christmas to all, and to all a good night"\n\n' +
@@ -938,6 +936,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
