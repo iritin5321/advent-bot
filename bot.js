@@ -333,12 +333,9 @@ const ADVENT_CONTENT = {
       question: 'Can you think of a situation that snowballed in your life? How did it start and how did it end?'
     },
     24: { 
-        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night"\n\n' +
-                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
-                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
-                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
-                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
-        image: null 
+        message: '🔔 Day 24: "With bells on"\n',
+        image: 'https://ibb.co/S73fT4S9',
+      question: 'What kind of event would make you show up with bells on?'
     },
     25: { 
         message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
@@ -936,6 +933,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
