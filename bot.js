@@ -338,12 +338,9 @@ const ADVENT_CONTENT = {
       question: 'What kind of event would make you show up with bells on?'
     },
     25: { 
-        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
-                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
-                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
-                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
-                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
-        image: null 
+        message: '🎉 Day 25: "Christmas comes but once a year!"\n',
+        image: 'https://ibb.co/8g8L47Kw',
+      question: 'Do you agree that the fact that Christmas comes but once a year is a good reason to spend more and indulge yourself? Why or why not?'
     },
     26: { 
         message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
@@ -933,6 +930,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
