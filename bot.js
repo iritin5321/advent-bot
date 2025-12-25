@@ -343,12 +343,9 @@ const ADVENT_CONTENT = {
       question: 'Do you agree that the fact that Christmas comes but once a year is a good reason to spend more and indulge yourself? Why or why not?'
     },
     26: { 
-        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
-                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
-                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
-                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
-                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
-        image: null 
+        message: '🎁 Day 26: "Don\'t look a gifted horse in the mouth"\n',
+        image: 'https://ibb.co/mrHDYVr3',
+      question: 'Is it ever okay to look a gift horse in the mouth, or should you always be grateful?'
     },
     27: { 
         message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!!"\n\n' +
@@ -930,6 +927,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
