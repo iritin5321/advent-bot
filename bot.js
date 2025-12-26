@@ -248,7 +248,7 @@ const ADVENT_CONTENT = {
       question: 'What projects do you need to wrap up before the holidays?'
     },
     7: { 
-        message: '🎵 Day 7: "Spread Christmas cheer"\n\n',
+        message: '🎵 Day 7: "Spread Christmas cheer."\n\n',
         image: 'https://ibb.co/PZZgrMTv',
       question: 'How do you spread Christmas cheer?'
     },
@@ -927,6 +927,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
