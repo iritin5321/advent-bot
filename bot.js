@@ -353,12 +353,9 @@ const ADVENT_CONTENT = {
       question: 'Can you think of a situation where people acted like turkeys voting for Christmas?'
     },
     28: { 
-        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
-                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
-                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
-                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
-                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
-        image: null 
+        message: '🐟 Day 24: "Cold fish"\n',
+        image: 'https://ibb.co/mrXqm5qF',
+      question: 'Is being a cold fish always a bad thing, or can it sometimes be useful?'
     },
     29: { 
         message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
@@ -924,6 +921,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
