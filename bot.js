@@ -353,12 +353,12 @@ const ADVENT_CONTENT = {
       question: 'Can you think of a situation where people acted like turkeys voting for Christmas?'
     },
     28: { 
-        message: '🐟 Day 24: "Cold fish"\n',
+        message: '🐟 Day 28: "Cold fish"\n',
         image: 'https://ibb.co/mrXqm5qF',
       question: 'Is being a cold fish always a bad thing, or can it sometimes be useful?'
     },
     29: { 
-        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+        message: '🎉 Day 29: "Merry Christmas to all, and to all a good night!"\n\n' +
                  '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
                  '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
                  '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
@@ -366,7 +366,7 @@ const ADVENT_CONTENT = {
         image: null 
     },
     30: { 
-        message: '🎉 Day 24: "Merry Christmas to all, and to all a good night!"\n\n' +
+        message: '🎉 Day 30: "Merry Christmas to all, and to all a good night!"\n\n' +
                  '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
                  '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
                  '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
@@ -374,7 +374,7 @@ const ADVENT_CONTENT = {
         image: null 
     },
     31: { 
-        message: '🔔 Day 10: "Ring in the new year"\n\n' +
+        message: '🔔 Day 31: "Ring in the new year"\n\n' +
                  '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
                  '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
                  '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
@@ -921,6 +921,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
