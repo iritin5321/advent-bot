@@ -358,12 +358,9 @@ const ADVENT_CONTENT = {
       question: 'Is being a cold fish always a bad thing, or can it sometimes be useful?'
     },
     29: { 
-        message: '🎉 Day 29: "Merry Christmas to all, and to all a good night!"\n\n' +
-                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
-                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
-                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
-                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
-        image: null 
+        message: '🥶 Day 29: "When hell freezes over"\n',
+        image: 'https://ibb.co/4wpvPL8B',
+      question: 'What\'s something you would only do when hell freezes over?'
     },
     30: { 
         message: '🎉 Day 30: "Merry Christmas to all, and to all a good night!"\n\n' +
@@ -921,6 +918,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
