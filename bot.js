@@ -363,12 +363,9 @@ const ADVENT_CONTENT = {
       question: 'What\'s something you would only do when hell freezes over?'
     },
     30: { 
-        message: '🎉 Day 30: "Merry Christmas to all, and to all a good night!"\n\n' +
-                 '📖 Meaning: A cheerful way to wish everyone well on Christmas Eve.\n\n' +
-                 '💬 Example: Used to end Christmas celebrations and send people home happily.\n\n' +
-                 '🎄 Christmas connection: The famous ending from "\'Twas the Night Before Christmas"!\n\n' +
-                 '🎊 Congratulations on completing the advent calendar! Happy holidays! 🎊',
-        image: null 
+        message: '📆 Day 30: "Turn over a new leaf"\n',
+        image: 'https://ibb.co/F48ffKy1',
+      question: 'What new leaf would you like to turn over in the new year?'
     },
     31: { 
         message: '🔔 Day 31: "Ring in the new year"\n\n' +
@@ -918,6 +915,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
