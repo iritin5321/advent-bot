@@ -368,11 +368,9 @@ const ADVENT_CONTENT = {
       question: 'What new leaf would you like to turn over in the new year?'
     },
     31: { 
-        message: '🔔 Day 31: "Ring in the new year"\n\n' +
-                 '📖 Meaning: To celebrate the beginning of a new year.\n\n' +
-                 '💬 Example: "We\'re going to ring in the new year with fireworks!"\n\n' +
-                 '🔔 Winter connection: Church bells traditionally ring at midnight on New Year\'s Eve.',
-        image: null 
+        message: '🔔 Day 31: "Ring in the new year"\n',
+        image: 'https://ibb.co/215dBH4j',
+      question: 'How are you going to ring in the new year?'
     },
 };
 
@@ -915,6 +913,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
