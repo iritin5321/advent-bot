@@ -372,6 +372,17 @@ const ADVENT_CONTENT = {
         image: 'https://ibb.co/215dBH4j',
       question: 'How are you going to ring in the new year?'
     },
+    32: { 
+    message: '🎊 Happy New Year! 🎆\n' +
+             'Congratulations on completing the Advent Calendar! Over the past month, we\'ve learned 31 winter and holiday idioms together.\n\' +
+             'I hope you didn\'t feel snowed under with all the new expressions! Maybe some days you got cold feet about answering the questions, or perhaps you had to put some responses on ice until you had more time. But you warmed up to the challenge and made it through!\n' +
+             'Remember: learning English is like a snowball - the more you practice, the bigger your skills become. Don\'t give yourself the cold shoulder if you forget some idioms - that\'s normal!\n' +
+             'As we ring in the new year, it\'s time to turn over a new leaf. Keep spreading Christmas cheer... I mean, English learning cheer! 🎄\n' +
+             'Thank you for being there with bells on every day. You did it!🎉\n' +
+             '✨ Wishing you a fantastic 2026 full of success, warmth, and wonderful new English adventures! ✨',
+    image: 'https://ibb.co/k2fJ9HDZ',
+    question: null
+},
 };
 
 // User data storage
@@ -849,6 +860,71 @@ app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
     res.send(message);
 });
 
+// New Year wrap-up message endpoint
+app.get('/send-newyear-message', async (req, res) => {
+    console.log("=== 🎊 NEW YEAR MESSAGE TRIGGERED ===");
+    console.log("Time:", new Date().toLocaleString());
+    
+    let sentCount = 0;
+    let failedCount = 0;
+    const failedUsers = [];
+    
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'Users!A:A'
+        });
+
+        const rows = response.data.values || [];
+        console.log(`Found ${rows.length - 1} users`);
+        
+        if (rows.length <= 1) {
+            return res.send('NO_USERS');
+        }
+
+        const finalMessage = ADVENT_CONTENT[32].message;
+
+        for (let i = 1; i < rows.length; i++) {
+            const userId = rows[i][0];
+            
+            if (!userId || !userId.toString().match(/^\d+$/)) {
+                continue;
+            }
+            
+            try {
+                await bot.telegram.sendMessage(
+                    userId,
+                    finalMessage,
+                    {
+                        parse_mode: 'HTML'
+                    }
+                );
+                
+                sentCount++;
+                console.log(`✅ ${i}/${rows.length - 1}: Sent to ${userId}`);
+                
+            } catch (err) {
+                failedUsers.push({ userId, error: err.message });
+                failedCount++;
+                console.log(`❌ Failed ${userId}: ${err.message}`);
+            }
+            
+            await new Promise(r => setTimeout(r, 1000));
+        }
+        
+    } catch (err) {
+        console.error('Fatal error:', err.message);
+        return res.status(500).send('ERROR');
+    }
+    
+    console.log("=== SUMMARY ===");
+    console.log(`✅ Sent: ${sentCount}`);
+    console.log(`❌ Failed: ${failedCount}`);
+    console.log("===============");
+    
+    res.send('OK');
+});
+
 app.listen(PORT, () => {
     console.log(`🌐 Server running on port ${PORT}`);
     console.log('🤖 Bot ready!');
@@ -913,6 +989,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
