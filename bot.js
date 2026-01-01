@@ -374,7 +374,7 @@ const ADVENT_CONTENT = {
     },
     32: { 
     message: '🎊 Happy New Year! 🎆\n' +
-             'Congratulations on completing the Advent Calendar! Over the past month, we\'ve learned 31 winter and holiday idioms together.\n\' +
+             'Congratulations on completing the Advent Calendar! Over the past month, we\'ve learned 31 winter and holiday idioms together.\n' +
              'I hope you didn\'t feel snowed under with all the new expressions! Maybe some days you got cold feet about answering the questions, or perhaps you had to put some responses on ice until you had more time. But you warmed up to the challenge and made it through!\n' +
              'Remember: learning English is like a snowball - the more you practice, the bigger your skills become. Don\'t give yourself the cold shoulder if you forget some idioms - that\'s normal!\n' +
              'As we ring in the new year, it\'s time to turn over a new leaf. Keep spreading Christmas cheer... I mean, English learning cheer! 🎄\n' +
@@ -989,6 +989,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
