@@ -742,123 +742,123 @@ bot.telegram.setWebhook(`${DOMAIN}/bot${BOT_TOKEN}`).then(() => {
 app.use(bot.webhookCallback(`/bot${BOT_TOKEN}`));
 // Endpoint for external cron service to trigger reminders
 
- app.get('/send-reminders', async (req, res) => {
-   const now = Date.now();
+// app.get('/send-reminders', async (req, res) => {
+  // const now = Date.now();
     
     // Prevent multiple triggers within 1 minute
-    if (now - lastReminderTime < REMINDER_COOLDOWN) {
-        const waitTime = Math.ceil((REMINDER_COOLDOWN - (now - lastReminderTime)) / 1000);
-        const msg = `⚠️ Reminder already sent recently. Wait ${waitTime} seconds.`;
-        console.log(msg);
-        return res.send(msg);
-    }
+//    if (now - lastReminderTime < REMINDER_COOLDOWN) {
+//        const waitTime = Math.ceil((REMINDER_COOLDOWN - (now - lastReminderTime)) / 1000);
+//        const msg = `⚠️ Reminder already sent recently. Wait ${waitTime} seconds.`;
+//        console.log(msg);
+//        return res.send(msg);
+//    }
     
-    lastReminderTime = now;
+//    lastReminderTime = now;
      
-  console.log("=== 📬 REMINDER ENDPOINT TRIGGERED ===");
-    console.log("Time:", new Date().toLocaleString());
+//  console.log("=== 📬 REMINDER ENDPOINT TRIGGERED ===");
+//    console.log("Time:", new Date().toLocaleString());
     
-    let sentCount = 0;
-    let failedCount = 0;
-    const failedUsers = [];
-    const messageIdUpdates = []; // Collect updates for batch save
+//    let sentCount = 0;
+//    let failedCount = 0;
+//    const failedUsers = [];
+//    const messageIdUpdates = []; // Collect updates for batch save
     
-    try {
-        console.log("Fetching users from Google Sheets...");
+//    try {
+//        console.log("Fetching users from Google Sheets...");
         
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: SPREADSHEET_ID,
-            range: 'Users!A:A'
-        });
+//        const response = await sheets.spreadsheets.values.get({
+//            spreadsheetId: SPREADSHEET_ID,
+//            range: 'Users!A:A'
+//        });
 
-        const rows = response.data.values || [];
-        console.log(`Found ${rows.length - 1} users (${rows.length} rows including header)`);
+//         const rows = response.data.values || [];
+//         console.log(`Found ${rows.length - 1} users (${rows.length} rows including header)`);
         
-        if (rows.length <= 1) {
-            const msg = "No users found in sheet";
-            console.log(msg);
-            return res.send(msg);
-        }
+//         if (rows.length <= 1) {
+//             const msg = "No users found in sheet";
+//             console.log(msg);
+//             return res.send(msg);
+//         }
 
-        // Process each user
-        for (let i = 1; i < rows.length; i++) {
-            const userId = rows[i][0];
+//         // Process each user
+//         for (let i = 1; i < rows.length; i++) {
+//             const userId = rows[i][0];
             
-            if (!userId || !userId.toString().match(/^\d+$/)) {
-                console.log(`⚠️ Skipping invalid user ID at row ${i + 1}: "${userId}"`);
-                continue;
-            }
+//             if (!userId || !userId.toString().match(/^\d+$/)) {
+//                 console.log(`⚠️ Skipping invalid user ID at row ${i + 1}: "${userId}"`);
+//                 continue;
+//             }
             
-            try {
-                console.log(`Processing user ${i}/${rows.length - 1}: ${userId}`);
+//             try {
+//                 console.log(`Processing user ${i}/${rows.length - 1}: ${userId}`);
                 
-                // Delete old messages (non-blocking)
-                await deleteOldMessages({ telegram: bot.telegram }, userId).catch(err => {
-                    console.log(`  ⚠️ Could not delete old messages: ${err.message}`);
-                });
+//                 // Delete old messages (non-blocking)
+//                 await deleteOldMessages({ telegram: bot.telegram }, userId).catch(err => {
+//                     console.log(`  ⚠️ Could not delete old messages: ${err.message}`);
+//                 });
                 
-                // Send reminder
-                const sentMessage = await bot.telegram.sendMessage(
-                    userId,
-                    "🎁 A new Advent box is open!\nTap below to see your calendar:",
-                    {
-                        reply_markup: {
-                            inline_keyboard: [[{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]]
-                        }
-                    }
-                );
+//                 // Send reminder
+//                 const sentMessage = await bot.telegram.sendMessage(
+//                     userId,
+//                     "🎁 A new Advent box is open!\nTap below to see your calendar:",
+//                     {
+//                         reply_markup: {
+//                             inline_keyboard: [[{ text: "🎄 Open Calendar", callback_data: "OPEN_CALENDAR" }]]
+//                         }
+//                     }
+//                 );
                 
-                console.log(`  ✅ Sent to ${userId}`);
+//                 console.log(`  ✅ Sent to ${userId}`);
                 
-                // Collect for batch save (in-memory)
-                messageCache[userId] = {
-                    calendar: sentMessage.message_id,
-                    image: null
-                };
-                messageIdUpdates.push({
-                    userId: userId,
-                    calendarMessageId: sentMessage.message_id,
-                    imageMessageId: null
-                });
+//                 // Collect for batch save (in-memory)
+//                 messageCache[userId] = {
+//                     calendar: sentMessage.message_id,
+//                     image: null
+//                 };
+//                 messageIdUpdates.push({
+//                     userId: userId,
+//                     calendarMessageId: sentMessage.message_id,
+//                     imageMessageId: null
+//                 });
                 
-                sentCount++;
+//                 sentCount++;
                 
-            } catch (userErr) {
-                console.error(`  ❌ Failed to send to ${userId}: ${userErr.message}`);
-                failedUsers.push({ 
-                    userId, 
-                    error: userErr.message,
-                    row: i + 1
-                });
-                failedCount++;
-            }
+//             } catch (userErr) {
+//                 console.error(`  ❌ Failed to send to ${userId}: ${userErr.message}`);
+//                 failedUsers.push({ 
+//                     userId, 
+//                     error: userErr.message,
+//                     row: i + 1
+//                 });
+//                 failedCount++;
+//             }
             
-            // Small delay to avoid Telegram rate limits
-            await new Promise(resolve => setTimeout(resolve, 500));
-        }
+//             // Small delay to avoid Telegram rate limits
+//             await new Promise(resolve => setTimeout(resolve, 500));
+//         }
         
-        // Batch save all message IDs at once (1-2 API calls instead of 18+)
-        if (messageIdUpdates.length > 0) {
-            console.log(`Batch saving ${messageIdUpdates.length} message IDs...`);
-            await saveMessageIdsBatch(messageIdUpdates);
-        }
+//         // Batch save all message IDs at once (1-2 API calls instead of 18+)
+//         if (messageIdUpdates.length > 0) {
+//             console.log(`Batch saving ${messageIdUpdates.length} message IDs...`);
+//             await saveMessageIdsBatch(messageIdUpdates);
+//         }
         
-    } catch (err) {
-        console.error('❌ FATAL ERROR:', err.message);
+//     } catch (err) {
+//         console.error('❌ FATAL ERROR:', err.message);
         
-        const partialMsg = `Partial: ${sentCount} sent, ${failedCount} failed. Error: ${err.message}`;
-        return res.status(500).send(partialMsg);
-    }
+//         const partialMsg = `Partial: ${sentCount} sent, ${failedCount} failed. Error: ${err.message}`;
+//         return res.status(500).send(partialMsg);
+//     }
     
-    const message = `OK: ${sentCount} sent | ${failedCount} failed`;
-   console.log(`Full summary: Sent: ${sentCount}, Failed: ${failedCount}`);
+//     const message = `OK: ${sentCount} sent | ${failedCount} failed`;
+//    console.log(`Full summary: Sent: ${sentCount}, Failed: ${failedCount}`);
     
-    if (failedUsers.length > 0) {
-        console.log("Failed users:", failedUsers);
-    }
+//     if (failedUsers.length > 0) {
+//         console.log("Failed users:", failedUsers);
+//     }
        
-    res.send(message);
-});
+//     res.send(message);
+// });
 
 // New Year wrap-up message endpoint
 app.get('/send-newyear-message', async (req, res) => {
@@ -989,6 +989,7 @@ process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
+
 
 
 
